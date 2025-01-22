@@ -1,16 +1,21 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from the .env file in the main folder
+load_dotenv(os.path.join(os.path.dirname(__file__), '../../.env'))
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Inventory Management System"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
-    POSTGRES_USER: str = 'avnadmin'
-    POSTGRES_PASSWORD: str = 'AVNS_6MI-1EylUyneDiDaS2o'
-    POSTGRES_SERVER: str = 'pg-2924c7dc-smlalene-69f7.k.aivencloud.com'
-    POSTGRES_DB: str = "defaultdb"
-    POSTGRES_PORT: int = 20881
+    POSTGRES_USER: str = os.getenv('POSTGRES_USER', 'avnadmin')
+    POSTGRES_PASSWORD: str = os.getenv('POSTGRES_PASSWORD', 'AVNS_6MI-1EylUyneDiDaS2o')
+    POSTGRES_SERVER: str = os.getenv('POSTGRES_SERVER', 'pg-2924c7dc-smlalene-69f7.k.aivencloud.com')
+    POSTGRES_DB: str = os.getenv('POSTGRES_DB', 'defaultdb')
+    POSTGRES_PORT: int = int(os.getenv('POSTGRES_PORT', 20881))
     #  DATABASE_URL: Optional[str] = 'postgresql://avnadmin:AVNS_6MI-1EylUyneDiDaS2o@pg-2924c7dc-smlalene-69f7.k.aivencloud.com:20881/defaultdb?sslmode=require'
     
     
