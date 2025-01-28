@@ -13,7 +13,7 @@ To create a virtual environment with uv, navigate to your project directory and 
 
 ```bash
 pip install uv
-uv venv myenv -p python3.9
+uv venv myenv --python 3.9
 ```
 
 This will create a new directory called `myenv` that contains the virtual environment.
@@ -84,7 +84,7 @@ Here's a brief overview of the folder structure:
 To run the FastAPI application, ensure your virtual environment is activated and execute the following command:
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn main:app --reload
 ```
 
 This will start the server, and you can access the application at `http://127.0.0.1:8000`.
