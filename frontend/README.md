@@ -1,6 +1,61 @@
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Prerequisites
+
+1. Install Node.js
+   - Download and install Node.js from [nodejs.org](https://nodejs.org/)
+   - Recommended version: 16.x or later
+   - Verify installation by running:
+     ```bash
+     node --version
+     npm --version
+     ```
+
+## Installation
+
+1. Clone the repository
+2. Navigate to the frontend directory
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## Project Structure
+
+```
+frontend/
+├── public/              # Static files and index.html
+├── src/
+│   ├── components/     # Reusable UI components
+│   │   ├── ui/        # Basic UI components (buttons, inputs, etc.)
+│   │   └── shared/    # Shared complex components
+│   ├── pages/         # Page components and routes
+│   ├── hooks/         # Custom React hooks
+│   ├── lib/           # Utility functions and configurations
+│   ├── api/           # API integration and services
+│   ├── types/         # TypeScript type definitions
+│   ├── context/       # React context providers
+│   ├── styles/        # Global styles and Tailwind configurations
+│   └── App.tsx        # Root application component
+├── package.json       # Project dependencies and scripts
+└── tsconfig.json      # TypeScript configuration
+```
+
+### Key Directories
+
+- **components/**: Contains all reusable UI components
+  - **ui/**: Basic UI elements built with shadcn/ui
+  - **shared/**: Complex components used across multiple pages
+
+- **pages/**: Page components and routing logic
+
+- **hooks/**: Custom React hooks for shared functionality
+
+- **lib/**: Utility functions, constants, and configurations
+
+- **api/**: API integration layer with axios setup
+
+- **context/**: Global state management using React Context
 
 ## Available Scripts
 
@@ -39,8 +94,4 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
