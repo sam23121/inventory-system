@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from ....db.session import SessionLocal
 from .... import models, schemas
+from datetime import datetime
 
 router = APIRouter()
 
@@ -18,6 +19,7 @@ def get_db():
 @router.post("/types/", response_model=schemas.DocumentType)
 def create_document_type(doc_type: schemas.DocumentTypeCreate, db: Session = Depends(get_db)):
     db_doc_type = models.DocumentType(**doc_type.dict())
+    # add the joindate and updatedate as today
     db.add(db_doc_type)
     db.commit()
     db.refresh(db_doc_type)
@@ -67,6 +69,8 @@ def create_document(document: schemas.DocumentCreate, db: Session = Depends(get_
         raise HTTPException(status_code=404, detail="Document type not found")
     
     db_document = models.Document(**document.dict())
+    db_document.date_joined = datetime.now()
+    db_document.date_updated = datetime.now()
     db.add(db_document)
     db.commit()
     db.refresh(db_document)
@@ -78,7 +82,7 @@ def read_documents(
     limit: int = 100, 
     type_id: int = None,
     db: Session = Depends(get_db)
-):
+):  
     query = db.query(models.Document)
     if type_id:
         query = query.filter(models.Document.type_id == type_id)

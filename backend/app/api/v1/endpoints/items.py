@@ -56,3 +56,47 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
     db.delete(db_item)
     db.commit()
     return {"message": "Item deleted successfully"} 
+
+@router.get("/types/", response_model=List[schemas.ItemType])
+def read_item_types(db: Session = Depends(get_db)):
+    item_types = db.query(models.ItemType).all()
+    return item_types
+
+@router.get("/types/{item_type_id}", response_model=schemas.ItemType)
+def read_item_type(item_type_id: int, db: Session = Depends(get_db)):
+    item_type = db.query(models.ItemType).filter(models.ItemType.id == item_type_id).first()
+    if item_type is None:
+        raise HTTPException(status_code=404, detail="Item type not found")
+    return item_type
+
+@router.post("/types/", response_model=schemas.ItemType)
+def create_item_type(item_type: schemas.ItemTypeCreate, db: Session = Depends(get_db)):
+    db_item_type = models.ItemType(**item_type.dict())
+    db.add(db_item_type)
+    db.commit()
+    db.refresh(db_item_type)
+    return db_item_type
+
+@router.put("/types/{item_type_id}", response_model=schemas.ItemType)
+def update_item_type(item_type_id: int, item_type: schemas.ItemTypeCreate, db: Session = Depends(get_db)):
+    db_item_type = db.query(models.ItemType).filter(models.ItemType.id == item_type_id).first()
+    if db_item_type is None:
+        raise HTTPException(status_code=404, detail="Item type not found")
+    
+    for var, value in vars(item_type).items():
+        setattr(db_item_type, var, value)
+    
+    db.commit()
+    db.refresh(db_item_type)
+    return db_item_type
+
+@router.delete("/types/{item_type_id}")
+def delete_item_type(item_type_id: int, db: Session = Depends(get_db)):
+    db_item_type = db.query(models.ItemType).filter(models.ItemType.id == item_type_id).first()
+    if db_item_type is None:
+        raise HTTPException(status_code=404, detail="Item type not found")
+    
+    db.delete(db_item_type)
+    db.commit()
+    return {"message": "Item type deleted successfully"}
+
