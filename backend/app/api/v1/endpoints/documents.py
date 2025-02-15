@@ -4,8 +4,9 @@ from typing import List
 from ....db.session import SessionLocal
 from .... import models, schemas
 from datetime import datetime
+from ....core.security import get_current_user
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 # Dependency
 def get_db():
@@ -153,4 +154,4 @@ def update_document_quantity(
     db_document.quantity = quantity
     db.commit()
     db.refresh(db_document)
-    return db_document 
+    return db_document

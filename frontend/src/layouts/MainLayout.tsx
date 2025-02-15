@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import { cn } from "../lib/utils";
 import {
   LayoutDashboard,
@@ -22,10 +22,6 @@ import {
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { useAuth } from '../hooks/useAuth';
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
-
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Documents', href: '/documents', icon: FileText },
@@ -35,10 +31,14 @@ const navigation = [
   { name: 'Schedule', href: '/schedule', icon: Calendar },
 ];
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const { user, logout } = useAuth();
+const MainLayout: React.FC = () => {
+  const { user, logout, isLoading } = useAuth();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -111,9 +111,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout}>
+                <DropdownMenuItem 
+                  onClick={handleLogout} 
+                  disabled={isLoading}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
+                  <span>{isLoading ? 'Logging out...' : 'Logout'}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -123,7 +126,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         {/* Main content area */}
         <main className="flex-1 p-6">
           <div className="max-w-7xl mx-auto">
-            {children}
+            <Outlet />
           </div>
         </main>
 

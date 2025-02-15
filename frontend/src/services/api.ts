@@ -7,7 +7,6 @@ export const api = axios.create({
   },
 });
 
-// Add request interceptor for auth token if needed
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -15,6 +14,10 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+export const authApi = {
+  logout: () => api.post('/auth/logout'),
+};
 
 // Response interceptor for handling errors
 api.interceptors.response.use(

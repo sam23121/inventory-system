@@ -3,13 +3,13 @@ from sqlalchemy.orm import Session
 from typing import List
 from ....db.session import SessionLocal, engine
 from .... import models, schemas
-from ....core.security import get_password_hash
+from ....core.security import get_password_hash, get_current_user
 import pprint
 
 # Create tables
 models.Base.metadata.create_all(bind=engine)
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 # Dependency
 def get_db():

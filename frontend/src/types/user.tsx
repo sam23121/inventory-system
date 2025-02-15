@@ -20,3 +20,17 @@ export interface User {
   confirm_password?: string;
   user_type?: UserType;  // This will include the roles through the UserType
 }
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+export interface AuthContextType {
+  auth: AuthState;
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => void;
+}
+

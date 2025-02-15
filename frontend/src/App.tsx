@@ -10,6 +10,8 @@ import Items from './pages/Items';
 import Transactions from './pages/Transactions';
 import Users from './pages/Users';
 import Schedule from './pages/Schedule';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -20,16 +22,19 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <MainLayout>
-        <Routes>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/documents" element={<Documents />} />
-          <Route path="/items" element={<Items />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/schedule" element={<Schedule />} />
-        </Routes>
-      </MainLayout>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/documents" element={<Documents />} />
+            <Route path="/items" element={<Items />} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/schedule" element={<Schedule />} />
+          </Route>
+        </Route>
+      </Routes>
     </Router>
   );
 };

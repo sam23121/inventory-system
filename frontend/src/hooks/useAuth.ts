@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User } from '../types/user';
-import { api } from '../services/api';
+import { api, authApi } from '../services/api';
 
 interface AuthState {
   user: User | null;
@@ -47,25 +47,43 @@ export const useAuth = () => {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const response = await api.post('/auth/login', { username, password });
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+
+    const response = await api.post('/auth/login', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+    
+    const { access_token, user } = response.data;
+    localStorage.setItem('token', access_token);
     setAuth({
       user,
-      token,
+      token: access_token,
       isAuthenticated: true,
       isLoading: false
     });
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setAuth({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false
-    });
+  const logout = async () => {
+    try {
+      setAuth(prev => ({ ...prev, isLoading: true }));
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      setAuth({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false
+      });
+      // redirect to login page
+      window.location.href = '/login';
+    }
   };
 
   return { ...auth, login, logout };

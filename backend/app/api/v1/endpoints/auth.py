@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from ....core import security
-from ....core.security import create_access_token
+from ....core.security import create_access_token, get_current_user
 from ....db.session import SessionLocal
 from .... import models, schemas
 
@@ -16,15 +16,13 @@ def get_db():
         db.close()
 
 @router.post("/login", response_model=schemas.Token)
-async def login(
+def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
-    print(form_data)
     user = db.query(models.User).filter(
         models.User.phone_number == form_data.username
     ).first()
-    
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -48,6 +46,11 @@ async def login(
         }
     }
 
-@router.get("/me", response_model=schemas.User)
-async def read_users_me(current_user: models.User = Depends(security.get_current_user)):
+# Only protect the /me endpoint, leave login/logout unprotected
+@router.get("/me", response_model=schemas.User, dependencies=[Depends(get_current_user)])
+async def read_users_me(current_user: models.User = Depends(get_current_user)):
     return current_user
+
+@router.post("/logout")
+def logout():
+    return {"message": "Logout successfully"}
