@@ -42,6 +42,16 @@ from .schemas import (
     ScheduleBase,
     ScheduleCreate,
     Schedule,
+    ShiftBase,
+    ShiftCreate,
+    Shift,
+    ScheduleTypeBase,
+    ScheduleTypeCreate,
+    ScheduleType,
     
+    # Audit Log schemas
+    AuditLogBase,
+    AuditLogCreate,
+    AuditLog,
 ) 
 from .auth import Token, TokenData

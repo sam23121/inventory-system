@@ -15,5 +15,9 @@ from .models import (
     Item,
     ItemType,
     Transaction,
-    TransactionType
+    TransactionType,
+    usertype_roles,
+    ScheduleType,
+    Shift,
+    AuditLog,
 ) 

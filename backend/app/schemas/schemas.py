@@ -1,6 +1,7 @@
 from pydantic import BaseModel, constr
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, time
+from sqlalchemy import Time
 
 # Role schemas
 class RoleBase(BaseModel):
@@ -57,6 +58,7 @@ class ItemBase(BaseModel):
     type_id: int
     description: Optional[str] = None
     quantity: int
+    serial_number: Optional[str] = None
 
 class ItemCreate(ItemBase):
     pass
@@ -121,6 +123,7 @@ class DocumentBase(BaseModel):
     type_id: int
     description: Optional[str] = None
     quantity: int
+    serial_number: Optional[str] = None
 
 class DocumentCreate(DocumentBase):
     pass
@@ -148,20 +151,68 @@ class DocumentType(DocumentTypeBase):
         from_attributes = True
 
 # Schedule schemas
-class ScheduleBase(BaseModel):
+class ShiftBase(BaseModel):
+    name: str
     description: Optional[str] = None
-    type: str
-    user_id: int
+    start_time: time
+    end_time: time
+
+class ShiftCreate(ShiftBase):
+    pass
+
+class Shift(ShiftBase):
+    id: int
+    
+    class Config:
+        from_attributes = True
+
+class ScheduleTypeBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+
+class ScheduleTypeCreate(ScheduleTypeBase):
+    pass
+
+class ScheduleType(ScheduleTypeBase):
+    id: int
+    
+    class Config:
+        from_attributes = True
+
+class ScheduleBase(BaseModel):
     date: datetime
+    description: Optional[str] = None
+    type_id: int
+    shift_id: int
+    user_id: int
+    assigned_by_id: Optional[int]
+    approved_by_id: Optional[int]
 
 class ScheduleCreate(ScheduleBase):
     pass
 
 class Schedule(ScheduleBase):
     id: int
-    date: datetime
     
     class Config:
         from_attributes = True
 
-        
+# AuditLog schemas
+class AuditLogBase(BaseModel):
+    table_name: str
+    record_id: int
+    action: str
+    old_values: Optional[dict] = None
+    new_values: Optional[dict] = None
+    user_id: int
+    timestamp: datetime
+
+class AuditLogCreate(AuditLogBase):
+    pass
+
+class AuditLog(AuditLogBase):
+    id: int
+    
+    class Config:
+        from_attributes = True
+
