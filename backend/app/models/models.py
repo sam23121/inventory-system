@@ -1,7 +1,14 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Text, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ..db.base import Base
+
+usertype_roles = Table(
+    "usertype_roles",
+    Base.metadata,
+    Column("user_type_id", Integer, ForeignKey("user_types.id")),
+    Column("role_id", Integer, ForeignKey("roles.id")),
+)
 
 class Role(Base):
     __tablename__ = "roles"
@@ -10,7 +17,7 @@ class Role(Base):
     name = Column(String, unique=True, index=True)
     description = Column(Text)
     
-    users = relationship("User", back_populates="role")
+    user_types = relationship("UserType", secondary=usertype_roles, back_populates="roles")
 
 class UserType(Base):
     __tablename__ = "user_types"
@@ -19,6 +26,7 @@ class UserType(Base):
     name = Column(String, unique=True, index=True)
     description = Column(Text)
     
+    roles = relationship("Role", secondary=usertype_roles, back_populates="user_types")
     users = relationship("User", back_populates="user_type")
 
 class User(Base):
@@ -29,12 +37,11 @@ class User(Base):
     phone_number = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     type_id = Column(Integer, ForeignKey("user_types.id"))
-    role_id = Column(Integer, ForeignKey("roles.id"))
     
-    role = relationship("Role", back_populates="users")
     user_type = relationship("UserType", back_populates="users")
     assigned_schedules = relationship("Schedule", foreign_keys="Schedule.assigned_by_id")
     approved_schedules = relationship("Schedule", foreign_keys="Schedule.approved_by_id")
+    my_schedule = relationship("Schedule", foreign_keys="Schedule.user_id")
 
 class Schedule(Base):
     __tablename__ = "schedules"
@@ -115,4 +122,4 @@ class Transaction(Base):
     
     trans_type = relationship("TransactionType", back_populates="transactions")
     approved_by = relationship("User", foreign_keys=[approved_by_id])
-    requested_by = relationship("User", foreign_keys=[requested_by_id]) 
+    requested_by = relationship("User", foreign_keys=[requested_by_id])

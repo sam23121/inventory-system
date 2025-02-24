@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List
 from ....db.session import SessionLocal
 from .... import models, schemas
+from ....core.security import get_current_user
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 # Dependency
 def get_db():
@@ -56,3 +57,47 @@ def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
     db.delete(db_transaction)
     db.commit()
     return {"message": "Transaction deleted successfully"} 
+
+@router.get("/types/", response_model=List[schemas.TransactionType])
+def read_transaction_types(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    transaction_types = db.query(models.TransactionType).offset(skip).limit(limit).all()
+    return transaction_types
+
+@router.get("/types/{transaction_type_id}", response_model=schemas.TransactionType)
+def read_transaction_type(transaction_type_id: int, db: Session = Depends(get_db)):
+    db_transaction_type = db.query(models.TransactionType).filter(models.TransactionType.id == transaction_type_id).first()
+    if db_transaction_type is None:
+        raise HTTPException(status_code=404, detail="Transaction type not found")
+    return db_transaction_type
+
+@router.post("/types/", response_model=schemas.TransactionType)
+def create_transaction_type(transaction_type: schemas.TransactionTypeCreate, db: Session = Depends(get_db)):
+    db_transaction_type = models.TransactionType(**transaction_type.dict())
+    db.add(db_transaction_type)
+    db.commit()
+    db.refresh(db_transaction_type)
+    return db_transaction_type
+
+@router.put("/types/{transaction_type_id}", response_model=schemas.TransactionType)
+def update_transaction_type(transaction_type_id: int, transaction_type: schemas.TransactionTypeCreate, db: Session = Depends(get_db)):
+    db_transaction_type = db.query(models.TransactionType).filter(models.TransactionType.id == transaction_type_id).first()
+    if db_transaction_type is None:
+        raise HTTPException(status_code=404, detail="Transaction type not found")
+    
+    for var, value in vars(transaction_type).items():
+        setattr(db_transaction_type, var, value)
+    
+    db.commit()
+    db.refresh(db_transaction_type)
+    return db_transaction_type
+
+@router.delete("/types/{transaction_type_id}")
+def delete_transaction_type(transaction_type_id: int, db: Session = Depends(get_db)):
+    db_transaction_type = db.query(models.TransactionType).filter(models.TransactionType.id == transaction_type_id).first()
+    if db_transaction_type is None:
+        raise HTTPException(status_code=404, detail="Transaction type not found")
+    
+    db.delete(db_transaction_type)
+    db.commit()
+    return {"message": "Transaction type deleted successfully"}
+
