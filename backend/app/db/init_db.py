@@ -89,30 +89,35 @@ def init_db(db: Session) -> None:
             "phone_number": "0911111111",
             "hashed_password": get_password_hash("admin123"),
             "type_id": 1,
+            "kristna_abat_id": None
         },
         {
             "name": "Manager",
             "phone_number": "0922222222",
             "hashed_password": get_password_hash("manager123"),
             "type_id": 2,
+            "kristna_abat_id": None
         },
         {
             "name": "Deacon",
             "phone_number": "0933333333",
             "hashed_password": get_password_hash("user123"),
             "type_id": 3,
+            "kristna_abat_id": None
         },
         {
             "name": "Priest",
             "phone_number": "0944444444",
             "hashed_password": get_password_hash("user123"),
             "type_id": 4,
+            "kristna_abat_id": None
         },
         {
             "name": "Member",
             "phone_number": "0955555555",
             "hashed_password": get_password_hash("user123"),
             "type_id": 5,
+            "kristna_abat_id": None
         }
     ]
     try:
@@ -144,6 +149,7 @@ def init_db(db: Session) -> None:
     documents = [
         {
             "name": "Annual Report 2023",
+            "serial_number": "AR2023",
             "type_id": 1,
             "description": "Year-end report",
             "quantity": 5,
@@ -152,6 +158,7 @@ def init_db(db: Session) -> None:
         },
         {
             "name": "Employee Contract",
+            "serial_number": "EC2023",
             "type_id": 2,
             "description": "Standard employment contract",
             "quantity": 10,
@@ -188,6 +195,7 @@ def init_db(db: Session) -> None:
     items = [
         {
             "name": "Laptop",
+            "serial_number": "LT2023",
             "type_id": 1,
             "description": "Dell XPS 13",
             "quantity": 5,
@@ -196,6 +204,7 @@ def init_db(db: Session) -> None:
         },
         {
             "name": "Printer",
+            "serial_number": "PR2023",
             "type_id": 1,
             "description": "HP LaserJet",
             "quantity": 3,

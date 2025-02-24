@@ -44,6 +44,8 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     user_type: Optional[UserType] = None
+    kristna_abat: Optional['User'] = None
+    kristna_children: List['User'] = []
 
     @property
     def roles(self) -> List[Role]:
@@ -63,13 +65,6 @@ class ItemBase(BaseModel):
 class ItemCreate(ItemBase):
     pass
 
-class Item(ItemBase):
-    id: int
-    date_joined: datetime
-    date_updated: Optional[datetime]
-    
-    class Config:
-        from_attributes = True
 
 class ItemTypeBase(BaseModel):
     name: str
@@ -83,6 +78,16 @@ class ItemType(ItemTypeBase):
     
     class Config:
         from_attributes = True
+
+class Item(ItemBase):
+    id: int
+    date_joined: datetime
+    date_updated: Optional[datetime]
+    item_type: Optional['ItemType'] = None
+    
+    class Config:
+        from_attributes = True
+
 
 # Transaction schemas
 class TransactionBase(BaseModel):

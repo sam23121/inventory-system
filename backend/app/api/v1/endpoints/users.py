@@ -82,6 +82,44 @@ def delete_user(user_id: int, db_user: Tuple[Session, models.User] = Depends(get
         db.delete(db_user)
         db.commit()
         return {"message": "User deleted successfully"} 
+    
+@router.put("/{user_id}/kristna-abat/{kristna_abat_id}")
+def assign_kristna_abat(
+    user_id: int,
+    kristna_abat_id: int,
+    db_user: Tuple[Session, models.User] = Depends(get_db_user)
+):
+    db, current_user = db_user
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    kristna_abat = db.query(models.User).filter(models.User.id == kristna_abat_id).first()
+    
+    if not user or not kristna_abat:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # Check if kristna_abat is a priest
+    if not kristna_abat.user_type.name == "priest":
+        raise HTTPException(
+            status_code=400,
+            detail="Only priests can be assigned as Kristna Abat"
+        )
+    
+    user.kristna_abat_id = kristna_abat_id
+    db.commit()
+    return {"message": "Kristna Abat assigned successfully"}
+
+@router.delete("/{user_id}/kristna-abat")
+def remove_kristna_abat(
+    user_id: int,
+    db_user: Tuple[Session, models.User] = Depends(get_db_user)
+):
+    db, current_user = db_user
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user.kristna_abat_id = None
+    db.commit()
+    return {"message": "Kristna Abat removed successfully"}
 
 @router.get("/roles/", response_model=List[schemas.Role])
 def read_roles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

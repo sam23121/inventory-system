@@ -17,49 +17,25 @@ import { Alert, AlertDescription } from '../ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { TransactionForm } from './TransactionForm';
 
-export const TransactionList: React.FC = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+interface TransactionListProps {
+  transactions: Transaction[];
+  transactionTypes: TransactionType[];
+  onTransactionUpdate: () => void;
+}
+
+export const TransactionList: React.FC<TransactionListProps> = ({transactions, transactionTypes, onTransactionUpdate}) => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [transactionTypes, setTransactionTypes] = useState<TransactionType[]>([]);
-
-  const fetchTransactions = async () => {
-    try {
-      setLoading(true);
-      const response = await transactionService.getAll();
-      setTransactions(response.data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch transactions');
-      console.error('Error fetching transactions:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
 
-
-  useEffect(() => {
-    fetchTransactions();
-    const fetchTransactionTypes = async () => {
-      try {
-        const response = await transactionTypeService.getAll();
-        setTransactionTypes(response.data);
-      } catch (err) {
-        console.error('Error fetching transaction types:', err);
-      }
-    };
-    fetchTransactionTypes();
-  }, []);
 
   const handleApprove = async (id: number) => {
     try {
       await transactionService.approve(id);
-      await fetchTransactions();
+      await onTransactionUpdate();
     } catch (err) {
       setError('Failed to approve transaction');
     }
@@ -68,7 +44,7 @@ export const TransactionList: React.FC = () => {
   const handleReject = async (id: number) => {
     try {
       await transactionService.reject(id);
-      await fetchTransactions();
+      await onTransactionUpdate();
     } catch (err) {
       setError('Failed to reject transaction');
     }
@@ -83,7 +59,7 @@ export const TransactionList: React.FC = () => {
     try {
       if (selectedTransaction?.id) {
         await transactionService.update(selectedTransaction.id, data);
-        await fetchTransactions();
+        onTransactionUpdate();
         setIsEditModalOpen(false);
         setSelectedTransaction(null);
       }
@@ -95,7 +71,7 @@ export const TransactionList: React.FC = () => {
   const handleCreateSubmit = async (data: Omit<Transaction, 'id'>) => {
     try {
       await transactionService.create(data);
-      await fetchTransactions();
+      onTransactionUpdate();
       setIsCreateModalOpen(false);
     } catch (err) {
       setError('Failed to create transaction');
@@ -119,7 +95,6 @@ export const TransactionList: React.FC = () => {
     return type.includes(searchLower) || description.includes(searchLower);
   });
 
-  if (loading) return <div>Loading...</div>;
   if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
 
   return (

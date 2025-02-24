@@ -3,7 +3,7 @@ from .base import Base
 # from .user import User  # Import your model classes
 # Import other models as needed
 
-__all__ = ['Base', 'User']  # List all models you want to expose
+__all__ = ['Base', 'User', 'Role', 'UserType', 'Schedule', 'Document', 'DocumentType', 'Item', 'ItemType', 'Transaction', 'TransactionType', 'usertype_roles', 'ScheduleType', 'Shift', 'AuditLog'] 
 
 from .models import (
     User,

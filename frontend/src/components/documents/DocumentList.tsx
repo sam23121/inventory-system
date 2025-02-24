@@ -16,50 +16,32 @@ import { Edit, Trash2, Plus, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { DocumentForm } from './DocumentForm';
 import { Input } from '../ui/input';
+import { usePagination } from '../../hooks/usePagination';
+import { Pagination } from '../ui/pagination';
 
-export const DocumentList: React.FC = () => {
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
+interface DocumentListProps {
+  documents: Document[];
+  documentTypes: DocumentType[];
+  onDocumentUpdate: () => void;
+}
+
+export const DocumentList: React.FC<DocumentListProps> = ({documents, documentTypes, onDocumentUpdate}) => {
   const [error, setError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
-  const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchDocuments = async () => {
-    try {
-      setLoading(true);
-      const response = await documentService.getAll();
-      setDocuments(response.data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch documents');
-      console.error('Error fetching documents:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const ITEMS_PER_PAGE = 5;
 
-  const fetchDocumentTypes = async () => {
-    try {
-      const response = await documentTypeService.getAll();
-      setDocumentTypes(response.data);
-    } catch (err) {
-      console.error('Error fetching document types:', err);
-    }
-  };
 
-  useEffect(() => {
-    fetchDocuments();
-    fetchDocumentTypes();
-  }, []);
+
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this document?')) {
       try {
         await documentService.delete(id);
-        setDocuments(documents.filter(doc => doc.id !== id));
+        onDocumentUpdate();
       } catch (err) {
         setError('Failed to delete document');
         console.error('Error deleting document:', err);
@@ -76,7 +58,7 @@ export const DocumentList: React.FC = () => {
     try {
       if (selectedDocument?.id) {
         await documentService.update(selectedDocument.id, data);
-        await fetchDocuments();
+        onDocumentUpdate();
         setIsEditModalOpen(false);
         setSelectedDocument(null);
       }
@@ -88,16 +70,35 @@ export const DocumentList: React.FC = () => {
   const handleCreateSubmit = async (data: Partial<Document>) => {
     try {
       await documentService.create(data as Omit<Document, 'id'>);
-      await fetchDocuments();
+      onDocumentUpdate();
       setIsCreateModalOpen(false);
     } catch (err) {
       setError('Failed to create document');
     }
   };
 
-  if (loading) {
-    return <div className="flex justify-center p-4">Loading...</div>;
-  }
+  const filteredDocuments = documents.filter(doc =>
+    doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doc.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const {
+    currentPage,
+    totalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    startIndex,
+    endIndex,
+    hasNextPage,
+    hasPrevPage
+  } = usePagination({
+    totalItems: filteredDocuments.length,
+    itemsPerPage: ITEMS_PER_PAGE
+  });
+
+  const paginatedDocuments = filteredDocuments.slice(startIndex, endIndex);
+
 
   if (error) {
     return (
@@ -138,7 +139,7 @@ export const DocumentList: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {documents.map((document) => (
+            {paginatedDocuments.map((document) => (
               <TableRow key={document.id}>
                 <TableCell>{document.name}</TableCell>
                 <TableCell>{document.type_id}</TableCell>
@@ -164,6 +165,14 @@ export const DocumentList: React.FC = () => {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+      />
 
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">

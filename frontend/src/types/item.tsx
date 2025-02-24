@@ -4,12 +4,14 @@ export interface ItemType {
     description: string;
   }
   
-  export interface Item {
-    id: number;
-    name: string;
-    type: string;
-    description: string;
-    quantity: number;
-    dateJoined: Date;
-    dateUpdated: Date;
-  }
+export interface Item {
+  id: number;
+  name: string;
+  serial_number?: string;
+  type_id: number;
+  item_type?: ItemType;
+  description: string;
+  quantity: number;
+  dateJoined: Date;
+  dateUpdated: Date;
+}

@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { ScheduleList } from "../components/schedule/ScheduleList";
+import ScheduleList from "../components/schedule/ScheduleList";
 
-const Schedule: React.FC = () => {
+const Schedule = () => {
   return (
-    <div className="container mx-auto py-6">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Schedule Management</CardTitle>

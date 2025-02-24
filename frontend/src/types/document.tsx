@@ -8,6 +8,7 @@ export interface DocumentType {
     id: number;
     name: string;
     type_id: number;
+    serial_number?: string;
     description: string;
     quantity: number;
     date_joined: string;

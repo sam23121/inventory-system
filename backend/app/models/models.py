@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Text, Table, Time, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from enum import Enum as PyEnum
 from ..db.base import Base
@@ -38,11 +38,14 @@ class User(Base):
     phone_number = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     type_id = Column(Integer, ForeignKey("user_types.id"))
+    kristna_abat_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     
     user_type = relationship("UserType", back_populates="users")
     assigned_schedules = relationship("Schedule", foreign_keys="Schedule.assigned_by_id")
     approved_schedules = relationship("Schedule", foreign_keys="Schedule.approved_by_id")
     my_schedule = relationship("Schedule", foreign_keys="Schedule.user_id")
+    kristna_abat = relationship("User", remote_side=[id], foreign_keys=[kristna_abat_id])
+    kristna_children = relationship("User", backref=backref("kristna_parent", remote_side=[id]), foreign_keys=[kristna_abat_id])
 
 class ScheduleType(Base):
     __tablename__ = "schedule_types"

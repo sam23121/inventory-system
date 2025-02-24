@@ -18,9 +18,9 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 import sys
 sys.path = ['', '..'] + sys.path[1:]
-from app import models as mymodel
-target_metadata = mymodel.Base.metadata
-
+from app.db.base import Base
+target_metadata = Base.metadata
+print(target_metadata.tables)
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")

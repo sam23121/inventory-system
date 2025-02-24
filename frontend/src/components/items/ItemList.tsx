@@ -16,48 +16,25 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { ItemForm } from './ItemForm';
 import { Input } from '../ui/input';
 
-export const ItemList: React.FC = () => {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ItemListProps {
+  items: Item[];
+  itemTypes: ItemType[];
+  onItemUpdate: () => void;
+}
+
+export const ItemList: React.FC<ItemListProps> = ({items, itemTypes, onItemUpdate}) => {
   const [error, setError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-  const [itemTypes, setItemTypes] = useState<ItemType[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchItems = async () => {
-    try {
-      setLoading(true);
-      const response = await itemService.getAll();
-      setItems(response.data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch items');
-      console.error('Error fetching items:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchItems();
-    const fetchItemTypes = async () => {
-      try {
-        const response = await itemTypeService.getAll();
-        setItemTypes(response.data);
-      } catch (err) {
-        console.error('Error fetching item types:', err);
-      }
-    };
-    fetchItemTypes();
-  }, []);
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       try {
         await itemService.delete(id);
-        setItems(items.filter(item => item.id !== id));
+        onItemUpdate();
       } catch (err) {
         setError('Failed to delete item');
       }
@@ -73,7 +50,7 @@ export const ItemList: React.FC = () => {
     try {
       if (selectedItem?.id) {
         await itemService.update(selectedItem.id, data);
-        await fetchItems();
+        onItemUpdate();
         setIsEditModalOpen(false);
         setSelectedItem(null);
       }
@@ -85,7 +62,7 @@ export const ItemList: React.FC = () => {
   const handleCreateSubmit = async (data: Partial<Item>) => {
     try {
       await itemService.create(data as Omit<Item, 'id'>);
-      await fetchItems();
+      onItemUpdate();
       setIsCreateModalOpen(false);
     } catch (err) {
       setError('Failed to create item');
@@ -97,7 +74,6 @@ export const ItemList: React.FC = () => {
     item.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) return <div>Loading...</div>;
   if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
 
   return (
@@ -122,6 +98,7 @@ export const ItemList: React.FC = () => {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
+            <TableHead>Serial Number</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Quantity</TableHead>
@@ -133,7 +110,8 @@ export const ItemList: React.FC = () => {
           {filteredItems.map((item) => (
             <TableRow key={item.id}>
               <TableCell>{item.name}</TableCell>
-              <TableCell>{item.type}</TableCell>
+              <TableCell>{item.serial_number}</TableCell>
+              <TableCell>{item.item_type?.name}</TableCell>
               <TableCell>{item.description}</TableCell>
               <TableCell>{item.quantity}</TableCell>
               <TableCell>{new Date(item.dateUpdated).toLocaleDateString()}</TableCell>

@@ -1,140 +1,183 @@
-import { useState, useEffect } from "react";
-import { Calendar } from "../ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { userService } from "../../services/userService";
-import { scheduleService } from "../../services/scheduleService";
-import { User } from "../../types/user";
-import { Loader2 } from "lucide-react";
-import { Alert, AlertDescription } from "../ui/alert";
+import React, { useState } from 'react';
+import { Schedule } from '../../types/schedule';
+import { scheduleService } from '../../services/scheduleService';
+import { Alert, AlertDescription } from '../ui/alert';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../ui/table';
+import { Button } from '../ui/button';
+import { Edit, Trash2, Plus, Search } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { ScheduleForm } from './ScheduleForm';
+import { Input } from '../ui/input';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { format } from 'date-fns';
 
 export const ScheduleList = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [selectedUser, setSelectedUser] = useState("");
-  const [selectedShift, setSelectedShift] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const queryClient = useQueryClient();
 
-  const shifts = [
-    { id: "morning", label: "Morning (8AM - 4PM)" },
-    { id: "afternoon", label: "Afternoon (4PM - 12AM)" },
-    { id: "night", label: "Night (12AM - 8AM)" },
-  ];
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await userService.getAll();
-        setUsers(response.data);
-      } catch (err) {
-        setError("Failed to fetch users");
-        console.error("Error fetching users:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const handleScheduleAssignment = async () => {
-    if (!date || !selectedUser || !selectedShift) {
-      setError("Please select all required fields");
-      return;
+  const { data: schedules, isLoading, isError } = useQuery({
+    queryKey: ['schedules'],
+    queryFn: async () => {
+      const response = await scheduleService.getAll();
+      return response.data;
     }
+  });
 
-    try {
-      await scheduleService.create({
-        user_id: parseInt(selectedUser),
-        // shift: selectedShift,
-        date: date.toISOString(),
-        description: "Scheduled shift",
-        type: "prayer",
-        assigned_by_id: 1,
-        approved_by_id: 2,
-      });
-      
-      // Clear selections after successful assignment
-      setSelectedUser("");
-      setSelectedShift("");
-      setError(null);
-    } catch (err) {
-      setError("Failed to assign schedule");
-      console.error("Error assigning schedule:", err);
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => scheduleService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+    },
+  });
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Are you sure you want to delete this schedule?')) {
+      deleteMutation.mutate(id);
     }
   };
 
-  if (loading) {
+  const handleEdit = (schedule: Schedule) => {
+    setSelectedSchedule(schedule);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (data: Partial<Schedule>) => {
+    try {
+      if (selectedSchedule?.id) {
+        await scheduleService.update(selectedSchedule.id, data);
+        queryClient.invalidateQueries({ queryKey: ['schedules'] });
+        setIsEditModalOpen(false);
+        setSelectedSchedule(null);
+      }
+    } catch (err) {
+      console.error('Failed to update schedule:', err);
+    }
+  };
+
+  const handleCreateSubmit = async (data: Partial<Schedule>) => {
+    try {
+      await scheduleService.create({
+        user_id: data.user_id as number,
+        shift_id: data.shift_id as number,
+        date: data.date as string,
+        description: data.description as string,
+        type_id: data.type_id as number,
+      });
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+      setIsCreateModalOpen(false);
+    } catch (err) {
+      console.error('Failed to create schedule:', err);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center p-4">Loading...</div>;
+  }
+
+  if (isError) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
+      <Alert variant="destructive">
+        <AlertDescription>Failed to fetch schedules</AlertDescription>
+      </Alert>
     );
   }
 
-  return (
-    <div className="space-y-4">
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+  const filteredSchedules = schedules?.filter(schedule => 
+    schedule.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    schedule.type.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    schedule.shift.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <Label>Select Date</Label>
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            className="rounded-md border"
+  return (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search schedules..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Select Employee</Label>
-            <Select value={selectedUser} onValueChange={setSelectedUser}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select an employee" />
-              </SelectTrigger>
-              <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id.toString()}>
-                    {user.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Select Shift</Label>
-            <Select value={selectedShift} onValueChange={setSelectedShift}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a shift" />
-              </SelectTrigger>
-              <SelectContent>
-                {shifts.map((shift) => (
-                  <SelectItem key={shift.id} value={shift.id}>
-                    {shift.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button 
-            className="w-full mt-4" 
-            onClick={handleScheduleAssignment}
-            disabled={!date || !selectedUser || !selectedShift}
-          >
-            Assign Schedule
-          </Button>
-        </div>
+        <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Create Schedule
+        </Button>
       </div>
-    </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>User</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Shift</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredSchedules?.map((schedule) => (
+            <TableRow key={schedule.id}>
+              <TableCell>{schedule.user_id}</TableCell>
+              <TableCell>{format(new Date(schedule.date), 'PPP')}</TableCell>
+              <TableCell>{schedule.shift?.name}</TableCell>
+              <TableCell>{schedule.type?.name}</TableCell>
+              <TableCell>{schedule.description}</TableCell>
+              <TableCell className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(schedule)}>
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => handleDelete(schedule.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Schedule</DialogTitle>
+          </DialogHeader>
+          <ScheduleForm
+            initialData={selectedSchedule || undefined}
+            onSubmit={handleEditSubmit}
+            onCancel={() => setIsEditModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create Schedule</DialogTitle>
+          </DialogHeader>
+          <ScheduleForm
+            onSubmit={handleCreateSubmit}
+            onCancel={() => setIsCreateModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
+
+export default ScheduleList;
