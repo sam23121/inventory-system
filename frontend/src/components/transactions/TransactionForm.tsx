@@ -38,8 +38,8 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     dateTaken: initialData?.dateTaken || new Date().toISOString(),
     status: initialData?.status || 'PENDING',
     dateReturned: initialData?.dateReturned || '',
-    approvedBy: initialData?.approvedBy || 0,
-    requestedBy: initialData?.requestedBy || 0
+    approved_by: initialData?.approved_by || 0,
+    requested_by: initialData?.requested_by || 0
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 

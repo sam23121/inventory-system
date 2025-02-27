@@ -21,8 +21,25 @@ class AuditMiddleware(BaseHTTPMiddleware):
         finally:
             current_user.reset(token)
 
+def serialize_dict(obj_dict: Dict) -> Dict:
+    """Serialize dictionary values to JSON-compatible format"""
+    result = {}
+    for key, value in obj_dict.items():
+        if key.startswith('_'):
+            continue
+        try:
+            # Test JSON serialization
+            json.dumps({key: value})
+            result[key] = value
+        except TypeError:
+            # Convert non-serializable values to strings
+            result[key] = str(value)
+    return result
+
 def get_changes(old_obj: Dict, new_obj: Dict) -> Dict[str, Any]:
     changes = {}
+    old_obj = serialize_dict(old_obj)
+    new_obj = serialize_dict(new_obj)
     for key in new_obj:
         if key in old_obj and old_obj[key] != new_obj[key]:
             changes[key] = {
@@ -71,7 +88,7 @@ def before_flush(session, context, instances):
                 table_name=instance.__tablename__,
                 record_id=instance.id if hasattr(instance, 'id') else None,
                 action='CREATE',
-                changes=instance.__dict__
+                changes=serialize_dict(instance.__dict__)
             )
 
     for instance in session.dirty:
@@ -96,5 +113,5 @@ def before_flush(session, context, instances):
                 table_name=instance.__tablename__,
                 record_id=instance.id,
                 action='DELETE',
-                changes=instance.__dict__
+                changes=serialize_dict(instance.__dict__)
             )

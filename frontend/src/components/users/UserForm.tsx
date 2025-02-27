@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { User, UserType } from '../../types/user';
 import { FormField } from '../ui/form-field';
 import { Button } from '../ui/button';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Upload } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 
 interface UserFormProps {
   initialData?: Partial<User>;
@@ -29,6 +30,10 @@ export const UserForm: React.FC<UserFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [profilePreview, setProfilePreview] = useState<string | null>(
+    initialData?.profile_picture || null
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +44,7 @@ export const UserForm: React.FC<UserFormProps> = ({
           phone_number: formData.phone_number || '',
           type_id: Number(formData.type_id) || 0,
           password: formData.password,
+          profile_picture: formData.profile_picture,
         };
         
         await onSubmit(userData);
@@ -69,8 +75,47 @@ export const UserForm: React.FC<UserFormProps> = ({
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setFormData(prev => ({ ...prev, profile_picture: base64String }));
+      };
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex flex-col items-center gap-4">
+        <Avatar className="w-24 h-24">
+          <AvatarImage src={profilePreview || undefined} />
+          <AvatarFallback>{formData.name?.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Picture
+          </Button>
+        </div>
+      </div>
+
       <FormField
         label="Name"
         name="name"

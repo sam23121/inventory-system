@@ -39,13 +39,13 @@ class User(Base):
     hashed_password = Column(String)
     type_id = Column(Integer, ForeignKey("user_types.id"))
     kristna_abat_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    profile_picture = Column(String, nullable=True)  # Store base64 encoded image or URL
     
     user_type = relationship("UserType", back_populates="users")
     assigned_schedules = relationship("Schedule", foreign_keys="Schedule.assigned_by_id")
     approved_schedules = relationship("Schedule", foreign_keys="Schedule.approved_by_id")
     my_schedule = relationship("Schedule", foreign_keys="Schedule.user_id")
-    kristna_abat = relationship("User", remote_side=[id], foreign_keys=[kristna_abat_id])
-    kristna_children = relationship("User", backref=backref("kristna_parent", remote_side=[id]), foreign_keys=[kristna_abat_id])
+    kristna_abat = relationship("User", remote_side=[id], backref="kristna_children")
 
 class ScheduleType(Base):
     __tablename__ = "schedule_types"
@@ -164,8 +164,7 @@ class AuditLog(Base):
     table_name = Column(String, index=True)
     record_id = Column(Integer)
     action = Column(String)  # CREATE, UPDATE, DELETE
-    old_values = Column(JSON, nullable=True)
-    new_values = Column(JSON, nullable=True)
+    changes = Column(JSON)
     user_id = Column(Integer, ForeignKey("users.id"))
     timestamp = Column(DateTime, server_default=func.now())
     

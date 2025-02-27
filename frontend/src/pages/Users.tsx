@@ -5,39 +5,33 @@ import { userTypeService, userService } from "../services/userService";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { useEffect, useState } from "react";
 import { User, UserType } from "../types/user";
-
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { UserTypeRoleAssignment } from "../components/users/UserTypeRoleAssignment";
 
 const Users = () => {
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [userTypes, setUserTypes] = useState<UserType[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [fetchedUsersResponse, fetchedUserTypesResponse] = await Promise.all([
-        userService.getAll(),
-        userTypeService.getAll()
-      ]);
-      setUsers(fetchedUsersResponse.data);
-      setUserTypes(fetchedUserTypesResponse.data);
-    } catch (err) {
-      setError('Failed to fetch data');
-    } finally {
-      setLoading(false);
+  const { data: users, isLoading: usersLoading, error: usersError } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const response = await userService.getAll();
+      return response.data;
     }
-  };
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data: userTypes, isLoading: userTypesLoading, error: userTypesError } = useQuery({
+    queryKey: ['userTypes'],
+    queryFn: async () => {
+      const response = await userTypeService.getAll();
+      return response.data;
+    }
+  });
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
 
-  
+  if (usersLoading || userTypesLoading) return <div>Loading...</div>;
+  if (usersError || userTypesError) return <Alert variant="destructive"><AlertDescription>Failed to fetch data</AlertDescription></Alert>;
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6">
@@ -48,9 +42,12 @@ const Users = () => {
           </CardHeader>
           <CardContent>
             <UserList 
-              users={users}
-              userTypes={userTypes}
-              onUserUpdate={fetchData}
+              users={users ?? []}
+              userTypes={userTypes ?? []}
+              onUserUpdate={() => {
+                queryClient.invalidateQueries({ queryKey: ['users'] });
+                queryClient.invalidateQueries({ queryKey: ['userTypes'] });
+              }}
             />
           </CardContent>
         </Card>
@@ -64,9 +61,21 @@ const Users = () => {
             <TypeList 
             title="User Type" 
             service={userTypeService} 
-            items={userTypes} 
-            onItemUpdate={fetchData}
+            items={userTypes ?? []} 
+            onItemUpdate={() => {
+              queryClient.invalidateQueries({ queryKey: ['userTypes'] });
+            }}
             />
+          </CardContent>
+        </Card>
+
+        {/* Assign Roles to User types */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Assign Roles to User Types</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <UserTypeRoleAssignment userTypes={userTypes ?? []} />
           </CardContent>
         </Card>
       </div>

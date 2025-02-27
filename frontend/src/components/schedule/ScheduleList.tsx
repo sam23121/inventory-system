@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Schedule } from '../../types/schedule';
+import { Schedule, ScheduleShift, ScheduleType } from '../../types/schedule';
+import { User } from '../../types/user';
 import { scheduleService } from '../../services/scheduleService';
 import { Alert, AlertDescription } from '../ui/alert';
 import {
@@ -15,38 +16,42 @@ import { Edit, Trash2, Plus, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { ScheduleForm } from './ScheduleForm';
 import { Input } from '../ui/input';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 
-export const ScheduleList = () => {
+interface ScheduleListProps {
+  schedules: Schedule[];
+  scheduleTypes: ScheduleType[];
+  scheduleShifts: ScheduleShift[];
+  users: User[];
+  onScheduleUpdate: () => void;
+}
+
+export const ScheduleList: React.FC<ScheduleListProps> = ({ 
+  schedules, 
+  scheduleTypes,
+  scheduleShifts,
+  users,
+  onScheduleUpdate 
+}) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const queryClient = useQueryClient();
-
-  const { data: schedules, isLoading, isError } = useQuery({
-    queryKey: ['schedules'],
-    queryFn: async () => {
-      const response = await scheduleService.getAll();
-      return response.data;
-    }
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => scheduleService.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['schedules'] });
-    },
-  });
-
+  const [error, setError] = useState<string | null>(null);
+  
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this schedule?')) {
-      deleteMutation.mutate(id);
+      try {
+        await scheduleService.delete(id);
+        onScheduleUpdate();
+      } catch (err) {
+        setError('Failed to delete schedule');
+      }
     }
   };
 
   const handleEdit = (schedule: Schedule) => {
+    setSelectedSchedule(schedule);
     setSelectedSchedule(schedule);
     setIsEditModalOpen(true);
   };
@@ -54,8 +59,11 @@ export const ScheduleList = () => {
   const handleEditSubmit = async (data: Partial<Schedule>) => {
     try {
       if (selectedSchedule?.id) {
-        await scheduleService.update(selectedSchedule.id, data);
-        queryClient.invalidateQueries({ queryKey: ['schedules'] });
+        await scheduleService.update(selectedSchedule.id, {
+          ...data,
+          date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
+        });
+        await onScheduleUpdate();
         setIsEditModalOpen(false);
         setSelectedSchedule(null);
       }
@@ -69,33 +77,23 @@ export const ScheduleList = () => {
       await scheduleService.create({
         user_id: data.user_id as number,
         shift_id: data.shift_id as number,
-        date: data.date as string,
+        date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
         description: data.description as string,
         type_id: data.type_id as number,
+        assigned_by_id: 1,
+        approved_by_id: 1,
       });
-      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+      await onScheduleUpdate();
       setIsCreateModalOpen(false);
     } catch (err) {
       console.error('Failed to create schedule:', err);
     }
   };
 
-  if (isLoading) {
-    return <div className="flex justify-center p-4">Loading...</div>;
-  }
-
-  if (isError) {
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>Failed to fetch schedules</AlertDescription>
-      </Alert>
-    );
-  }
-
   const filteredSchedules = schedules?.filter(schedule => 
     schedule.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    schedule.type.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    schedule.shift.name.toLowerCase().includes(searchTerm.toLowerCase())
+    schedule.schedule_type?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    schedule.shift?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -130,10 +128,10 @@ export const ScheduleList = () => {
         <TableBody>
           {filteredSchedules?.map((schedule) => (
             <TableRow key={schedule.id}>
-              <TableCell>{schedule.user_id}</TableCell>
+              <TableCell>{schedule.user?.name}</TableCell>
               <TableCell>{format(new Date(schedule.date), 'PPP')}</TableCell>
               <TableCell>{schedule.shift?.name}</TableCell>
-              <TableCell>{schedule.type?.name}</TableCell>
+              <TableCell>{schedule.schedule_type?.name}</TableCell>
               <TableCell>{schedule.description}</TableCell>
               <TableCell className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => handleEdit(schedule)}>
@@ -159,6 +157,9 @@ export const ScheduleList = () => {
           </DialogHeader>
           <ScheduleForm
             initialData={selectedSchedule || undefined}
+            shifts={scheduleShifts}
+            types={scheduleTypes}
+            users={users}
             onSubmit={handleEditSubmit}
             onCancel={() => setIsEditModalOpen(false)}
           />
@@ -171,6 +172,10 @@ export const ScheduleList = () => {
             <DialogTitle>Create Schedule</DialogTitle>
           </DialogHeader>
           <ScheduleForm
+            initialData={undefined}
+            shifts={scheduleShifts}
+            types={scheduleTypes}
+            users={users}
             onSubmit={handleCreateSubmit}
             onCancel={() => setIsCreateModalOpen(false)}
           />

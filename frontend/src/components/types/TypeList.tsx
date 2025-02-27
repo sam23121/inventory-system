@@ -37,7 +37,6 @@ interface TypeListProps {
 
 export const TypeList: React.FC<TypeListProps> = ({ title, service, items, onItemUpdate }) => {
 //   const [items, setItems] = useState<Type[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Type | null>(null);
@@ -46,20 +45,7 @@ export const TypeList: React.FC<TypeListProps> = ({ title, service, items, onIte
 
   const ITEMS_PER_PAGE = 5;
 
-//   const fetchItems = async () => {
-//     try {
-//       const response = await service.getAll();
-//       setItems(response.data);
-//     } catch (err) {
-//       setError(`Failed to fetch ${title}`);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
 
-//   useEffect(() => {
-//     fetchItems();
-//   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

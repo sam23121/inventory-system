@@ -130,7 +130,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
           {filteredTransactions.map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell>{transaction.id}</TableCell>
-              <TableCell>{transaction.type}</TableCell>
+              <TableCell>{transaction.trans_type?.name}</TableCell>
               <TableCell>{transaction.description}</TableCell>
               <TableCell>{transaction.quantity}</TableCell>
               <TableCell>{new Date(transaction.dateTaken).toLocaleDateString()}</TableCell>

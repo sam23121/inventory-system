@@ -13,7 +13,7 @@ export const documentService = {
 export const documentTypeService = {
   getAll: () => api.get<DocumentType[]>('/documents/types/'),
   getById: (id: number) => api.get<DocumentType>(`/documents/types/${id}`),
-  create: (data: Omit<DocumentType, 'id'>) => api.post<DocumentType>('/documents/types', data),
+  create: (data: Omit<DocumentType, 'id'>) => api.post<DocumentType>('/documents/types/', data),
   update: (id: number, data: Partial<DocumentType>) => api.put<DocumentType>(`/documents/types/${id}`, data),
   delete: (id: number) => api.delete(`/documents/types/${id}`),
 };

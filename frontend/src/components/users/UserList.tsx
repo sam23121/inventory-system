@@ -17,6 +17,8 @@ import { UserForm } from './UserForm';
 import { Input } from '../ui/input';
 import { usePagination } from '../../hooks/usePagination';
 import { Pagination } from '../ui/pagination';
+import { ProfileView } from './ProfileView';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 
 interface UserListProps {
   users: User[];
@@ -30,6 +32,7 @@ export const UserList: React.FC<UserListProps> = ({ users, userTypes, onUserUpda
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isProfileViewModalOpen, setIsProfileViewModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const ITEMS_PER_PAGE = 5;
@@ -68,6 +71,11 @@ export const UserList: React.FC<UserListProps> = ({ users, userTypes, onUserUpda
     } catch (err) {
       setError('Failed to update user');
     }
+  };
+  const handleUserClick = (user: User) => {
+    setSelectedUser(user);
+    // show the profile view modal
+    setIsProfileViewModalOpen(true);
   };
 
   const handleCreateSubmit = async (data: Partial<User>) => {
@@ -123,61 +131,80 @@ export const UserList: React.FC<UserListProps> = ({ users, userTypes, onUserUpda
         </Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Phone Number</TableHead>
-            <TableHead>Password</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>User Type</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paginatedUsers.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.phone_number}</TableCell>
-              <TableCell className="flex items-center gap-2">
-                <span className="font-mono">
-                  {visiblePasswords[user.id] ? user.password : '••••••••'}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => togglePasswordVisibility(user.id)}
-                >
-                  {visiblePasswords[user.id] ? 
-                    <EyeOff className="w-4 h-4" /> : 
-                    <Eye className="w-4 h-4" />
-                  }
-                </Button>
-              </TableCell>
-              <TableCell>
-                {user.user_type?.roles?.map(role => role.name).join(', ') || 'No roles assigned'}
-              </TableCell>
-              <TableCell>{user.user_type?.name || 'Unknown Type'}</TableCell>
-              <TableCell className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleEdit(user)}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={() => handleDelete(user.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </TableCell>
+      <div className="space-y-4">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>#</TableHead>
+              <TableHead>Profile</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Phone Number</TableHead>
+              {/* <TableHead>Password</TableHead> */}
+              <TableHead>Role</TableHead>
+              <TableHead>User Type</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paginatedUsers.map((user) => (
+              <TableRow 
+                key={user.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => setSelectedUser(user)}
+              >
+                <TableCell>{filteredUsers.indexOf(user) + 1}</TableCell>
+                <TableCell>
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={user.profile_picture} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                </TableCell>
+                <TableCell
+                onClick={() => handleUserClick(user)}
+                >
+                  {user.name}
+                </TableCell>
+                <TableCell>{user.phone_number}</TableCell>
+                {/* <TableCell className="flex items-center gap-2">
+                  <span className="font-mono">
+                    {visiblePasswords[user.id] ? user.password : '••••••••'}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => togglePasswordVisibility(user.id)}
+                  >
+                    {visiblePasswords[user.id] ? 
+                      <EyeOff className="w-4 h-4" /> : 
+                      <Eye className="w-4 h-4" />
+                    }
+                  </Button>
+                </TableCell> */}
+                <TableCell>
+                  {user.user_type?.roles?.map(role => role.name).join(', ') || 'No roles assigned'}
+                </TableCell>
+                <TableCell>{user.user_type?.name || 'Unknown Type'}</TableCell>
+                <TableCell className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleEdit(user)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => handleDelete(user.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <Pagination
         currentPage={currentPage}
@@ -212,6 +239,15 @@ export const UserList: React.FC<UserListProps> = ({ users, userTypes, onUserUpda
             onCancel={() => setIsCreateModalOpen(false)}
           />
         </DialogContent>
+      </Dialog>
+
+      <Dialog open={isProfileViewModalOpen} onOpenChange={setIsProfileViewModalOpen}>
+        <ProfileView
+          user={selectedUser}
+          isOpen={isProfileViewModalOpen}
+          onClose={() => setIsProfileViewModalOpen(false)}
+          userTypes={userTypes}
+        />
       </Dialog>
     </>
   );

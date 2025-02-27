@@ -3,66 +3,62 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import DocumentList from "../components/documents/DocumentList";
 import { TypeList } from "../components/types/TypeList";
 import { documentService, documentTypeService } from "../services/documentService";
-import { Document, DocumentType } from "../types/document";
-import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Alert, AlertDescription } from "../components/ui/alert";
 
 const Documents = () => {
+  const queryClient = useQueryClient();
 
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [fetchedDocumentsResponse, fetchedDocumentTypesResponse] = await Promise.all([
-        documentService.getAll(),
-        documentTypeService.getAll()
-      ]);
-      setDocuments(fetchedDocumentsResponse.data);
-      setDocumentTypes(fetchedDocumentTypesResponse.data);
-    } catch (err) {
-      setError('Failed to fetch data');
-    } finally {
-      setLoading(false);
+  const { data: documents, isLoading: documentsLoading, error: documentsError } = useQuery({
+    queryKey: ['documents'],
+    queryFn: async () => {
+      const response = await documentService.getAll();
+      return response.data;
     }
-  }
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data: documentTypes, isLoading: typesLoading, error: typesError } = useQuery({
+    queryKey: ['documentTypes'],
+    queryFn: async () => {
+      const response = await documentTypeService.getAll();
+      return response.data;
+    }
+  });
 
-
+  if (documentsLoading || typesLoading) return <div>Loading...</div>;
+  if (documentsError || typesError) return <Alert variant="destructive"><AlertDescription>Failed to fetch data</AlertDescription></Alert>;
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6">
-        {/* Documents Section */}
         <Card>
           <CardHeader>
             <CardTitle>Documents</CardTitle>
           </CardHeader>
           <CardContent>
             <DocumentList 
-            documents={documents}
-            documentTypes={documentTypes}
-            onDocumentUpdate={fetchData}
+              documents={documents ?? []}
+              documentTypes={documentTypes ?? []}
+              onDocumentUpdate={() => {
+                queryClient.invalidateQueries({ queryKey: ['documents'] });
+                queryClient.invalidateQueries({ queryKey: ['documentTypes'] });
+              }}
             />
           </CardContent>
         </Card>
 
-        {/* Document Types Section */}
         <Card>
           <CardHeader>
             <CardTitle>Document Types</CardTitle>
           </CardHeader>
           <CardContent>
             <TypeList 
-            title="Document Type" 
-            service={documentTypeService} 
-            items={documentTypes}
-            onItemUpdate={() => {}}
+              title="Document Type" 
+              service={documentTypeService} 
+              items={documentTypes ?? []}
+              onItemUpdate={() => {
+                queryClient.invalidateQueries({ queryKey: ['documentTypes'] });
+              }}
             />
           </CardContent>
         </Card>

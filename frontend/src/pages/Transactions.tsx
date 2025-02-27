@@ -5,35 +5,30 @@ import { transactionService, transactionTypeService } from "../services/transact
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { TypeList } from "../components/types/TypeList";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Transactions = () => {
-  const [transactionTypes, setTransactionTypes] = useState<TransactionType[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [fetchedTransactionsResponse, fetchedTransactionTypesResponse] = await Promise.all([
-        transactionService.getAll(),
-        transactionTypeService.getAll()
-      ]);
-      setTransactions(fetchedTransactionsResponse.data);
-      setTransactionTypes(fetchedTransactionTypesResponse.data);
-    } catch (err) {
-      setError('Failed to fetch data');
-    } finally {
-      setLoading(false);
+  const { data: transactions, isLoading: transactionsLoading, error: transactionsError } = useQuery({
+    queryKey: ['transactions'],
+    queryFn: async () => {
+      const response = await transactionService.getAll();
+      return response.data;
     }
-  }
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const { data: transactionTypes, isLoading: typesLoading, error: typesError } = useQuery({
+    queryKey: ['transactionTypes'],
+    queryFn: async () => {
+      const response = await transactionTypeService.getAll();
+      return response.data;
+    }
+  });
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
+  if (transactionsLoading || typesLoading) return <div>Loading...</div>;
+  if (transactionsError || typesError) return <Alert variant="destructive"><AlertDescription>Failed to fetch data</AlertDescription></Alert>;
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6">
@@ -43,9 +38,12 @@ const Transactions = () => {
           </CardHeader>
           <CardContent>
             <TransactionList 
-              transactions={transactions}
-              transactionTypes={transactionTypes}
-              onTransactionUpdate={fetchData}
+              transactions={transactions ?? []}
+              transactionTypes={transactionTypes ?? []}
+              onTransactionUpdate={() => {
+                queryClient.invalidateQueries({ queryKey: ['transactions'] });
+                queryClient.invalidateQueries({ queryKey: ['transactionTypes'] });
+              }}
             />
           </CardContent>
         </Card>
@@ -58,8 +56,10 @@ const Transactions = () => {
             <TypeList 
               title="Transaction Type"
               service={transactionTypeService}
-              items={transactionTypes}
-              onItemUpdate={fetchData}
+              items={transactionTypes ?? []}
+              onItemUpdate={() => {
+                queryClient.invalidateQueries({ queryKey: ['transactionTypes'] });
+              }}
             />
           </CardContent>
         </Card>
