@@ -5,12 +5,14 @@ import {
   LayoutDashboard,
   FileText,
   Package,
-  ArrowLeftRight, // Replace Transfer with ArrowLeftRight
+  ArrowLeftRight,
   Users,
   Settings,
   LogOut,
   Menu,
   Calendar,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from "../components/ui/button";
 import {
@@ -19,25 +21,48 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { useAuth } from '../hooks/useAuth';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Documents', href: '/documents', icon: FileText },
-  { name: 'Items', href: '/items', icon: Package },
-  { name: 'Transactions', href: '/transactions', icon: ArrowLeftRight }, // Update this line
-  { name: 'Users', href: '/users', icon: Users },
-  { name: 'Schedule', href: '/schedule', icon: Calendar },
+  { 
+    name: 'Dashboard', 
+    href: '/', 
+    icon: LayoutDashboard 
+  },
+  {
+    name: 'Admin',
+    icon: Package,
+    children: [
+      { name: 'Documents', href: '/documents', icon: FileText },
+      { name: 'Items', href: '/items', icon: Package },
+      { name: 'Transactions', href: '/transactions', icon: ArrowLeftRight },
+      { name: 'Users', href: '/users', icon: Users },
+      { name: 'Schedule', href: '/schedule', icon: Calendar },
+    ]
+  }
 ];
 
 const MainLayout: React.FC = () => {
   const { user, logout, isLoading } = useAuth();
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [expandedSections, setExpandedSections] = React.useState<string[]>(['Crud']); // Initialize with Crud expanded
 
   const handleLogout = async () => {
-    await logout();
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
+  };
+
+  const toggleSection = (sectionName: string) => {
+    setExpandedSections(prev =>
+      prev.includes(sectionName)
+        ? prev.filter(name => name !== sectionName)
+        : [...prev, sectionName]
+    );
   };
 
   return (
@@ -58,6 +83,50 @@ const MainLayout: React.FC = () => {
         <nav className="p-4 space-y-1">
           {navigation.map((item) => {
             const Icon = item.icon;
+            if (item.children) {
+              const isExpanded = expandedSections.includes(item.name);
+              return (
+                <div key={item.name}>
+                  <button
+                    onClick={() => toggleSection(item.name)}
+                    className={cn(
+                      "w-full flex items-center px-4 py-2 text-sm font-medium rounded-md",
+                      "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <Icon className="mr-3 h-5 w-5" />
+                    {item.name}
+                    {isExpanded ? (
+                      <ChevronDown className="ml-auto h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    )}
+                  </button>
+                  {isExpanded && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {item.children.map((child) => {
+                        const ChildIcon = child.icon;
+                        return (
+                          <Link
+                            key={child.name}
+                            to={child.href}
+                            className={cn(
+                              "flex items-center px-4 py-2 text-sm font-medium rounded-md",
+                              location.pathname === child.href
+                                ? "bg-gray-100 text-gray-900"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            )}
+                          >
+                            <ChildIcon className="mr-3 h-5 w-5" />
+                            {child.name}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
             return (
               <Link
                 key={item.name}
@@ -99,7 +168,7 @@ const MainLayout: React.FC = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    {/* <AvatarImage src={user?.avatarUrl} alt={user?.name} /> */}
+                    <AvatarImage src={user?.profile_picture} alt={user?.name} />
                     <AvatarFallback>
                       {user?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
