@@ -53,5 +53,18 @@ from .schemas import (
     AuditLogBase,
     AuditLogCreate,
     AuditLog,
+
+    # Religious Document schemas
+    ReligiousDocumentBase,
+    ReligiousDocumentCreate,
+    ReligiousDocument,
+    MembershipDocumentCreate,
+    MembershipDocument,
+    BaptismDocumentCreate,
+    BaptismDocument,
+    BurialDocumentCreate,
+    BurialDocument,
+    MarriageDocumentCreate,
+    MarriageDocument,
 ) 
 from .auth import Token, TokenData

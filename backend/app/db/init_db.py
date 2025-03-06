@@ -326,3 +326,44 @@ def init_db(db: Session) -> None:
     except Exception as e:
         print(e)
         db.rollback()
+
+    # Create sample religious documents
+    sample_baptism = {
+        "serial_number": "BAP-2023-001",
+        "english_name": "John Smith",
+        "english_father_name": "Michael Smith",
+        "english_mother_name": "Sarah Smith",
+        "english_christian_name": "John",
+        "amharic_name": "ዮሐንስ ስሚዝ",
+        "amharic_father_name": "ሚካኤል ስሚዝ",
+        "amharic_mother_name": "ሳራ ስሚዝ",
+        "amharic_christian_name": "ዮሐንስ",
+        "date_of_birth": datetime.now() - timedelta(days=365*20),
+        "place_of_birth": "Addis Ababa",
+        "address": "Bole, Addis Ababa",
+        "phone_number": "0911234567",
+        "priest_name": "Priest Name",
+        "priest_id": 4,  # Assuming priest user ID
+        "amharic_witness_name_1": "ሰላም አበበ",
+        "amharic_witness_name_2": "ፍቅር ታደሰ",
+        "english_witness_name_1": "Selam Abebe",
+        "english_witness_name_2": "Fikir Tadesse",
+        "address_witness_1": "Bole, Addis Ababa",
+        "address_witness_2": "Piassa, Addis Ababa",
+        "recorded_by_id": 1,  # Admin user
+        "approved_by_id": 2,  # Manager user
+        "baptism_date": datetime.now() - timedelta(days=365*19),
+        "baptism_place": "St. Mary Church",
+        "amharic_god_parent_name": "ብርሃን ገብረ",
+        "english_god_parent_name": "Birhan Gebre"
+    }
+
+    try:
+        baptism_doc = models.BaptismDocument(**sample_baptism)
+        db.add(baptism_doc)
+        db.commit()
+    except Exception as e:
+        print(f"Error creating baptism document: {e}")
+        db.rollback()
+
+    # Add more sample documents for other types as needed

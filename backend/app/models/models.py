@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from enum import Enum as PyEnum
 from ..db.base import Base
+from sqlalchemy.ext.declarative import declared_attr
 
 usertype_roles = Table(
     "usertype_roles",
@@ -46,6 +47,49 @@ class User(Base):
     approved_schedules = relationship("Schedule", foreign_keys="Schedule.approved_by_id")
     my_schedule = relationship("Schedule", foreign_keys="Schedule.user_id")
     kristna_abat = relationship("User", remote_side=[id], backref="kristna_children")
+
+    # For Religious Documents
+    membershipdocument = relationship("MembershipDocument",
+                                        foreign_keys="MembershipDocument.priest_id",
+                                        back_populates="priest")
+    
+    baptismdocument = relationship("BaptismDocument", 
+                                   foreign_keys="BaptismDocument.priest_id",
+                                   back_populates="priest")
+    burialdocument = relationship("BurialDocument", 
+                                  foreign_keys="BurialDocument.priest_id",
+                                  back_populates="priest")
+    marriagedocument = relationship("MarriageDocument", 
+                                    foreign_keys="MarriageDocument.priest_id",
+                                    back_populates="priest")
+
+    # Religious Documents - recorded_by relationships
+    recorded_membership_documents = relationship("MembershipDocument",
+                                              foreign_keys="MembershipDocument.recorded_by_id",
+                                              back_populates="recorded_by")
+    recorded_baptism_documents = relationship("BaptismDocument",
+                                           foreign_keys="BaptismDocument.recorded_by_id",
+                                           back_populates="recorded_by")
+    recorded_burial_documents = relationship("BurialDocument",
+                                         foreign_keys="BurialDocument.recorded_by_id",
+                                         back_populates="recorded_by")
+    recorded_marriage_documents = relationship("MarriageDocument",
+                                           foreign_keys="MarriageDocument.recorded_by_id",
+                                           back_populates="recorded_by")
+
+    # Religious Documents - approved_by relationships
+    approved_membership_documents = relationship("MembershipDocument",
+                                              foreign_keys="MembershipDocument.approved_by_id",
+                                              back_populates="approved_by")
+    approved_baptism_documents = relationship("BaptismDocument",
+                                           foreign_keys="BaptismDocument.approved_by_id",
+                                           back_populates="approved_by")
+    approved_burial_documents = relationship("BurialDocument",
+                                         foreign_keys="BurialDocument.approved_by_id",
+                                         back_populates="approved_by")
+    approved_marriage_documents = relationship("MarriageDocument",
+                                           foreign_keys="MarriageDocument.approved_by_id",
+                                           back_populates="approved_by")
 
 class ScheduleType(Base):
     __tablename__ = "schedule_types"
@@ -156,6 +200,96 @@ class Transaction(Base):
     trans_type = relationship("TransactionType", back_populates="transactions")
     approved_by = relationship("User", foreign_keys=[approved_by_id])
     requested_by = relationship("User", foreign_keys=[requested_by_id])
+
+class ReligiousDocumentBase(Base):
+    __abstract__ = True
+    id = Column(Integer, primary_key=True, index=True)
+
+    serial_number = Column(String, unique=True, index=True, nullable=False)
+
+    english_name = Column(String, index=True, nullable=True)
+    english_christian_name = Column(String, index=True, nullable=True)
+    english_father_name = Column(String, index=True, nullable=True)
+    english_mother_name = Column(String, index=True, nullable=True)
+
+    amharic_name = Column(String, index=True)
+    amharic_christian_name = Column(String, index=True)
+    amharic_father_name = Column(String, index=True)
+    amharic_mother_name = Column(String, index=True)
+
+    date_of_birth = Column(DateTime, nullable=False)
+    place_of_birth = Column(String, nullable=False)
+    address = Column(String)
+    phone_number = Column(String)
+
+    priest_name = Column(String, nullable=True)
+    priest_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    
+    amharic_witness_name_1 = Column(String, nullable=True)
+    amharic_witness_name_2 = Column(String, nullable=True)
+    english_witness_name_1 = Column(String, nullable=True)
+    english_witness_name_2 = Column(String, nullable=True)
+    address_witness_1 = Column(String, nullable=True)
+    address_witness_2 = Column(String, nullable=True)
+    
+    priest_id = Column(Integer, ForeignKey("users.id"))
+    recorded_by_id = Column(Integer, ForeignKey("users.id"))
+    approved_by_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, onupdate=func.now())
+
+
+    @declared_attr
+    def priest(cls):
+        return relationship("User", 
+                          foreign_keys=[cls.priest_id],
+                          back_populates=f"{cls.__name__.lower()}")
+
+    @declared_attr
+    def recorded_by(cls):
+        return relationship("User", 
+                          foreign_keys=[cls.recorded_by_id],
+                          primaryjoin=f"User.id == {cls.__name__}.recorded_by_id")
+
+    @declared_attr
+    def approved_by(cls):
+        return relationship("User", 
+                          foreign_keys=[cls.approved_by_id],
+                          primaryjoin=f"User.id == {cls.__name__}.approved_by_id")
+
+class MembershipDocument(ReligiousDocumentBase):
+    __tablename__ = "membership_documents"
+
+class BaptismDocument(ReligiousDocumentBase):
+    __tablename__ = "baptism_documents"
+    baptism_date = Column(DateTime)
+    baptism_place = Column(String)
+    amharic_god_parent_name = Column(String)
+    english_god_parent_name = Column(String)
+
+class BurialDocument(ReligiousDocumentBase):
+    __tablename__ = "burial_documents"
+    
+    date_of_death = Column(DateTime)
+    place_of_death = Column(String)
+    cause_of_death = Column(String)
+    burial_date = Column(DateTime)
+
+class MarriageDocument(ReligiousDocumentBase):
+    __tablename__ = "marriage_documents"
+    
+    english_bride_name = Column(String, index=True, nullable=True)
+    english_bride_christian_name = Column(String, index=True, nullable=True)
+    english_bride_father_name = Column(String, index=True, nullable=True)
+    english_bride_mother_name = Column(String, index=True, nullable=True)
+    
+    amharic_bride_name = Column(String, index=True)
+    amharic_bride_christian_name = Column(String, index=True)
+    amharic_bride_father_name = Column(String, index=True)
+    amharic_bride_mother_name = Column(String, index=True)
+    
+    date_of_marriage = Column(DateTime)
+    place_of_marriage = Column(String)
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"

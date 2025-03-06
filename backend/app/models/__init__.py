@@ -20,4 +20,8 @@ from .models import (
     ScheduleType,
     Shift,
     AuditLog,
+    BaptismDocument,
+    BurialDocument,
+    MarriageDocument,
+    MembershipDocument,
 ) 
