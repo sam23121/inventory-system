@@ -15,6 +15,8 @@ import { Edit, Trash2, Plus, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { ItemForm } from './ItemForm';
 import { Input } from '../ui/input';
+import { usePagination } from '../../hooks/usePagination';
+import { Pagination } from '../ui/pagination';
 
 interface ItemListProps {
   items: Item[];
@@ -29,6 +31,7 @@ export const ItemList: React.FC<ItemListProps> = ({items, itemTypes, onItemUpdat
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const ITEMS_PER_PAGE = 5;
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
@@ -74,6 +77,23 @@ export const ItemList: React.FC<ItemListProps> = ({items, itemTypes, onItemUpdat
     item.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const {
+    currentPage,
+    totalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    startIndex,
+    endIndex,
+    hasNextPage,
+    hasPrevPage
+  } = usePagination({
+    totalItems: filteredItems.length,
+    itemsPerPage: ITEMS_PER_PAGE
+  });
+
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
   if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
 
   return (
@@ -107,7 +127,7 @@ export const ItemList: React.FC<ItemListProps> = ({items, itemTypes, onItemUpdat
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredItems.map((item) => (
+          {paginatedItems.map((item) => (
             <TableRow key={item.id}>
               <TableCell>{item.name}</TableCell>
               <TableCell>{item.serial_number}</TableCell>
@@ -135,6 +155,14 @@ export const ItemList: React.FC<ItemListProps> = ({items, itemTypes, onItemUpdat
           ))}
         </TableBody>
       </Table>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+      />
 
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">

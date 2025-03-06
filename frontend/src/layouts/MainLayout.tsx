@@ -14,6 +14,9 @@ import {
   ChevronDown,
   ChevronRight,
   Globe2,
+  NotebookPen,
+  Skull,
+  Baby,
 } from 'lucide-react';
 import { Button } from "../components/ui/button";
 import {
@@ -39,18 +42,18 @@ const navigation = [
     children: [
       { name: 'documents', href: '/documents', icon: FileText },
       { name: 'items', href: '/items', icon: Package },
-      { name: 'transactions', href: '/transactions', icon: ArrowLeftRight },
+      // { name: 'transactions', href: '/transactions', icon: ArrowLeftRight },
       { name: 'users', href: '/users', icon: Users },
       { name: 'schedule', href: '/schedule', icon: Calendar },
     ]
   },
   {
     name: 'register',
-    icon: Users,
+    icon: NotebookPen,
     children: [
       { name: 'member', href: '/members', icon: Users },
-      { name: 'birth', href: '/birth', icon: Users },
-      { name: 'death', href: '/death', icon: Users },
+      { name: 'baptism', href: '/baptisms', icon: Baby },
+      { name: 'burial', href: '/burials', icon: Skull },
     ]
   },
   {

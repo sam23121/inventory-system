@@ -19,6 +19,9 @@
     "view": "ተመልከት",
     "update": "አስተካክል",
     "close": "ዝጋ",
+    "approve": "አረጋግጥ",
+    "reject": "ከልክል",
+    "send": "ላክ",
     
     "id": "መለያ-ቁጥር",
     "id-2": "ተራ-ቁጥር",
@@ -77,13 +80,16 @@
     "settings": "ቅንብሮች",
     "members": "አባላት",
     "roles": "ሚናዎች",
-    "birth": "ልደት",
-    "death": "ሞት",
+    "baptism": "ክርስትና",
+    "burial": "ቀብር",
     "marriage": "ጋብቻ",
     "divorce": "ፍች",
     "register": "መዝገብ",
     "member": "አባላት",
-    "admin": "አስተዳዳሪ"
+    "admin": "አስተዳዳሪ",
+    "events": "ክስተቶች",
+    "reports": "ሪፖርቶች",
+    "appointments": "ቀጠሮ"
   },
 
   "dashboard": {

@@ -18,6 +18,8 @@ import { ScheduleForm } from './ScheduleForm';
 import { Input } from '../ui/input';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import { usePagination } from '../../hooks/usePagination';
+import { Pagination } from '../ui/pagination';
 
 interface ScheduleListProps {
   schedules: Schedule[];
@@ -92,11 +94,29 @@ export const ScheduleList: React.FC<ScheduleListProps> = ({
     }
   };
 
+  const ITEMS_PER_PAGE = 5;
+
   const filteredSchedules = schedules?.filter(schedule => 
     schedule.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     schedule.schedule_type?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    schedule.shift?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    schedule.shift?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    schedule.user?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const {
+    currentPage,
+    totalPages,
+    goToPage,
+    startIndex,
+    endIndex,
+    hasNextPage,
+    hasPrevPage
+  } = usePagination({
+    totalItems: filteredSchedules?.length || 0,
+    itemsPerPage: ITEMS_PER_PAGE
+  });
+
+  const paginatedSchedules = filteredSchedules?.slice(startIndex, endIndex);
 
   return (
     <>
@@ -129,7 +149,7 @@ export const ScheduleList: React.FC<ScheduleListProps> = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredSchedules?.map((schedule) => (
+          {paginatedSchedules?.map((schedule) => (
             <TableRow key={schedule.id}>
               {/* counter */}
               <TableCell>{schedule.id}</TableCell>
@@ -154,6 +174,14 @@ export const ScheduleList: React.FC<ScheduleListProps> = ({
           ))}
         </TableBody>
       </Table>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+      />
 
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">

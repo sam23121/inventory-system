@@ -20,6 +20,9 @@
     "view": "View",
     "update": "Update",
     "close": "Close",
+    "approve": "Approve",
+    "reject": "Reject",
+    "send": "Send",
 
     "id": "ID",
     "id-2": "#",
@@ -79,13 +82,16 @@
     "settings": "Settings",
     "members": "Members",
     "roles": "Roles",
-    "birth": "Birth",
-    "death": "Death",
+    "baptism": "Baptism",
+    "burial": "Burial",
     "marriage": "Marriage",
     "divorce": "Divorce",
     "register": "Register",
     "member": "Member",
-    "admin": "Admin"
+    "admin": "Admin",
+    "events": "Events",
+    "reports": "Reports",
+    "appointments": "Appointments"
   },
 
   "dashboard": {

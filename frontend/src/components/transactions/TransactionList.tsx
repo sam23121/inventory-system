@@ -11,12 +11,14 @@ import {
   TableRow,
 } from "../ui/table";
 import { Input } from "../ui/input";
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { Badge } from "../ui/badge";
 import { Alert, AlertDescription } from '../ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { TransactionForm } from './TransactionForm';
 import { useTranslation } from 'react-i18next';
+import { usePagination } from '../../hooks/usePagination';
+import { Pagination } from '../ui/pagination';
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -31,6 +33,33 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const ITEMS_PER_PAGE = 5;
+
+  const filteredTransactions = transactions.filter(transaction => {
+    const searchLower = searchTerm.toLowerCase();
+    const type = transaction.trans_type?.name?.toLowerCase() ?? '';
+    const description = transaction.description?.toLowerCase() ?? '';
+    
+    return type.includes(searchLower) || description.includes(searchLower);
+  });
+
+  const {
+    currentPage,
+    totalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    startIndex,
+    endIndex,
+    hasNextPage,
+    hasPrevPage
+  } = usePagination({
+    totalItems: filteredTransactions.length,
+    itemsPerPage: ITEMS_PER_PAGE
+  });
+
+  const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
 
   const handleApprove = async (id: number) => {
     try {
@@ -87,14 +116,6 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
     return <Badge variant={variants[status.toLowerCase()]}>{status}</Badge>;
   };
 
-  const filteredTransactions = transactions.filter(transaction => {
-    const searchLower = searchTerm.toLowerCase();
-    const type = transaction.type?.toString().toLowerCase() ?? '';
-    const description = transaction.description?.toLowerCase() ?? '';
-    
-    return type.includes(searchLower) || description.includes(searchLower);
-  });
-
   if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
 
   return (
@@ -110,6 +131,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
           />
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" />
           {t('transactions.createTransaction')}
         </Button>
       </div>
@@ -127,7 +149,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredTransactions.map((transaction) => (
+          {paginatedTransactions.map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell>{transaction.id}</TableCell>
               <TableCell>{transaction.trans_type?.name}</TableCell>
@@ -144,7 +166,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
                   >
                     {t('common.view')}
                   </Button>
-                  {transaction.status === 'PENDING' && (
+                  {transaction.status === 'pending' && (
                     <>
                       <Button 
                         variant="default" 
@@ -168,6 +190,14 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
           ))}
         </TableBody>
       </Table>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+      />
 
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">

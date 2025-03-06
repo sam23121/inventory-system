@@ -1,9 +1,10 @@
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { TransactionList } from "../components/transactions/TransactionList";
-import { transactionService, transactionTypeService } from "../services/transactionService";
-import { Alert, AlertDescription } from "../components/ui/alert";
 import { TypeList } from "../components/types/TypeList";
+import { transactionService, transactionTypeService } from "../services/transactionService";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Alert, AlertDescription } from "../components/ui/alert";
 import { useTranslation } from 'react-i18next';
 
 const Transactions = () => {
@@ -42,7 +43,6 @@ const Transactions = () => {
               transactionTypes={transactionTypes ?? []}
               onTransactionUpdate={() => {
                 queryClient.invalidateQueries({ queryKey: ['transactions'] });
-                queryClient.invalidateQueries({ queryKey: ['transactionTypes'] });
               }}
             />
           </CardContent>
@@ -55,7 +55,7 @@ const Transactions = () => {
           <CardContent>
             <TypeList 
               title={t('transactions.transactionTypes')}
-              service={transactionTypeService}
+              service={transactionTypeService} 
               items={transactionTypes ?? []}
               onItemUpdate={() => {
                 queryClient.invalidateQueries({ queryKey: ['transactionTypes'] });
@@ -66,6 +66,7 @@ const Transactions = () => {
       </div>
     </div>
   );
-};  
+};
+
 export default Transactions;
 
