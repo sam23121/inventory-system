@@ -189,7 +189,7 @@ def read_membership_documents(skip: int = 0, limit: int = 100, db: Session = Dep
     return documents
 
 @router.put("/membership/{document_id}", response_model=schemas.MembershipDocument)
-def update_membership_document(document_id: int, document: schemas.MembershipDocumentUpdate, db: Session = Depends(get_db)):
+def update_membership_document(document_id: int, document: schemas.MembershipDocumentCreate, db: Session = Depends(get_db)):
     db_document = db.query(models.MembershipDocument).filter(models.MembershipDocument.id == document_id).first()
     if db_document is None:
         raise HTTPException(status_code=404, detail="Membership document not found")
@@ -229,7 +229,7 @@ def read_baptism_documents(skip: int = 0, limit: int = 100, db: Session = Depend
     return documents
 
 @router.put("/baptism/{document_id}", response_model=schemas.BaptismDocument)
-def update_baptism_document(document_id: int, document: schemas.BaptismDocumentUpdate, db: Session = Depends(get_db)):
+def update_baptism_document(document_id: int, document: schemas.BaptismDocumentCreate, db: Session = Depends(get_db)):
     db_document = db.query(models.BaptismDocument).filter(models.BaptismDocument.id == document_id).first()
     if db_document is None:
         raise HTTPException(status_code=404, detail="Baptism document not found")
@@ -268,7 +268,7 @@ def read_burial_documents(skip: int = 0, limit: int = 100, db: Session = Depends
     return documents
 
 @router.put("/burial/{document_id}", response_model=schemas.BurialDocument)
-def update_burial_document(document_id: int, document: schemas.BurialDocumentUpdate, db: Session = Depends(get_db)):
+def update_burial_document(document_id: int, document: schemas.BurialDocumentCreate, db: Session = Depends(get_db)):
     db_document = db.query(models.BurialDocument).filter(models.BurialDocument.id == document_id).first()
     if db_document is None:
         raise HTTPException(status_code=404, detail="Burial document not found")
@@ -307,7 +307,7 @@ def read_marriage_documents(skip: int = 0, limit: int = 100, db: Session = Depen
     return documents
 
 @router.put("/marriage/{document_id}", response_model=schemas.MarriageDocument)
-def update_marriage_document(document_id: int, document: schemas.MarriageDocumentUpdate, db: Session = Depends(get_db)):
+def update_marriage_document(document_id: int, document: schemas.MarriageDocumentCreate, db: Session = Depends(get_db)):
     db_document = db.query(models.MarriageDocument).filter(models.MarriageDocument.id == document_id).first()
     if db_document is None:
         raise HTTPException(status_code=404, detail="Marriage document not found")
