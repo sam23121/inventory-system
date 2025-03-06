@@ -1,14 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { TransactionList } from "../components/transactions/TransactionList";
-import { Transaction, TransactionType } from "../types/transaction";
 import { transactionService, transactionTypeService } from "../services/transactionService";
-import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { TypeList } from "../components/types/TypeList";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 const Transactions = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data: transactions, isLoading: transactionsLoading, error: transactionsError } = useQuery({
     queryKey: ['transactions'],
@@ -34,7 +34,7 @@ const Transactions = () => {
       <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Transactions</CardTitle>
+            <CardTitle>{t('transactions.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <TransactionList 
@@ -50,11 +50,11 @@ const Transactions = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Transaction Types</CardTitle>
+            <CardTitle>{t('transactions.transactionTypes')}</CardTitle>
           </CardHeader>
           <CardContent>
             <TypeList 
-              title="Transaction Type"
+              title={t('transactions.transactionTypes')}
               service={transactionTypeService}
               items={transactionTypes ?? []}
               onItemUpdate={() => {

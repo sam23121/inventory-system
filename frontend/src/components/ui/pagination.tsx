@@ -1,5 +1,6 @@
 import { Button } from "./button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface PaginationProps {
   currentPage: number;
@@ -16,10 +17,11 @@ export function Pagination({
   hasNextPage,
   hasPrevPage,
 }: PaginationProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between px-2 py-4">
       <div className="text-sm text-muted-foreground">
-        Page {currentPage} of {totalPages}
+        {t('common.page')} {currentPage} {t('common.of')} {totalPages}
       </div>
       <div className="flex items-center space-x-2">
         <Button
@@ -29,7 +31,7 @@ export function Pagination({
           disabled={!hasPrevPage}
         >
           <ChevronLeft className="h-4 w-4" />
-          Previous
+          {t('common.previous')}
         </Button>
         <Button
           variant="outline"
@@ -37,7 +39,7 @@ export function Pagination({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={!hasNextPage}
         >
-          Next
+          {t('common.next')}
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>

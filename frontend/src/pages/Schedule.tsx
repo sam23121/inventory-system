@@ -6,9 +6,11 @@ import { userService } from "../services/userService";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ShiftList } from "../components/schedule/ShiftList";
+import { useTranslation } from 'react-i18next';
 
 const Schedule = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data: schedules, isLoading: schedulesLoading, error: schedulesError } = useQuery({
     queryKey: ['schedules'],
@@ -43,7 +45,7 @@ const Schedule = () => {
   });
 
 
-  if (schedulesLoading || typesLoading) return <div>Loading...</div>;
+  if (schedulesLoading || typesLoading) return <div>{t('common.loading')}</div>;
   if (schedulesError || typesError) return <Alert variant="destructive"><AlertDescription>Failed to fetch data</AlertDescription></Alert>;
 
   return (
@@ -51,7 +53,7 @@ const Schedule = () => {
       <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Schedules</CardTitle>
+            <CardTitle>{t('schedule.title')}</CardTitle>
           </CardHeader>          
           <CardContent>
             <ScheduleList 
@@ -69,11 +71,11 @@ const Schedule = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Schedule Types</CardTitle>
+            <CardTitle>{t('schedule.scheduleTypes')}</CardTitle>
           </CardHeader>
           <CardContent>
             <TypeList 
-              title="Schedule Type"
+              title={t('schedule.scheduleTypes')}
               service={scheduleTypeService}
               items={scheduleTypes ?? []}
               onItemUpdate={() => {
@@ -85,11 +87,11 @@ const Schedule = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Schedule Shifts</CardTitle>
+            <CardTitle>{t('schedule.scheduleShifts')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ShiftList 
-              title="Schedule Shift"
+              title={t('schedule.scheduleShifts')}
               service={scheduleShiftService}
               items={scheduleShifts ?? []}
               onItemUpdate={() => {

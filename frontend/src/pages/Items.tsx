@@ -7,9 +7,11 @@ import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { TypeList } from "../components/types/TypeList";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 const Items = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data: items, isLoading: itemsLoading, error: itemsError } = useQuery({
     queryKey: ['items'],
@@ -35,7 +37,7 @@ const Items = () => {
       <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Items</CardTitle>
+            <CardTitle>{t('items.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ItemList 
@@ -51,11 +53,11 @@ const Items = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Item Types</CardTitle>
+            <CardTitle>{t('items.itemTypes')}</CardTitle>
           </CardHeader>
           <CardContent>
             <TypeList 
-              title="Item Types"
+              title={t('items.itemTypes')}
               service={itemTypeService}
               items={itemTypes ?? []}
               onItemUpdate={() => {

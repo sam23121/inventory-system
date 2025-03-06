@@ -18,6 +18,8 @@ import { DocumentForm } from './DocumentForm';
 import { Input } from '../ui/input';
 import { usePagination } from '../../hooks/usePagination';
 import { Pagination } from '../ui/pagination';
+import { useTranslation } from 'react-i18next';
+
 
 interface DocumentListProps {
   documents: Document[];
@@ -33,6 +35,8 @@ export const DocumentList: React.FC<DocumentListProps> = ({documents, documentTy
   const [searchTerm, setSearchTerm] = useState('');
 
   const ITEMS_PER_PAGE = 5;
+
+  const {t} = useTranslation();
 
 
 
@@ -114,7 +118,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({documents, documentTy
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search documents..."
+            placeholder={t('search') + '...'}
             className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -122,7 +126,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({documents, documentTy
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          Create Document
+          {t('documents.createDocument')}
         </Button>
       </div>
 
@@ -130,12 +134,12 @@ export const DocumentList: React.FC<DocumentListProps> = ({documents, documentTy
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Date Updated</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>{t('common.name')}</TableHead>
+              <TableHead>{t('common.type')}</TableHead>
+              <TableHead>{t('common.description')}</TableHead>
+              <TableHead>{t('common.quantity')}</TableHead>
+              <TableHead>{t('common.dateUpdated')}</TableHead>
+              <TableHead>{t('common.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -177,7 +181,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({documents, documentTy
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Document</DialogTitle>
+            <DialogTitle>{t('documents.editDocument')}</DialogTitle>
           </DialogHeader>
           <DocumentForm
             initialData={selectedDocument || undefined}
@@ -191,7 +195,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({documents, documentTy
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create Document</DialogTitle>
+            <DialogTitle>{t('documents.createDocument')}</DialogTitle>
           </DialogHeader>
           <DocumentForm
             documentTypes={documentTypes}

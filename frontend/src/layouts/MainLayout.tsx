@@ -13,6 +13,7 @@ import {
   Calendar,
   ChevronDown,
   ChevronRight,
+  Globe2,
 } from 'lucide-react';
 import { Button } from "../components/ui/button";
 import {
@@ -23,22 +24,41 @@ import {
 } from "../components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { useAuth } from '../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n/config';
 
 const navigation = [
   { 
-    name: 'Dashboard', 
+    name: 'dashboard', 
     href: '/', 
     icon: LayoutDashboard 
   },
   {
-    name: 'Admin',
+    name: 'admin',
     icon: Package,
     children: [
-      { name: 'Documents', href: '/documents', icon: FileText },
-      { name: 'Items', href: '/items', icon: Package },
-      { name: 'Transactions', href: '/transactions', icon: ArrowLeftRight },
-      { name: 'Users', href: '/users', icon: Users },
-      { name: 'Schedule', href: '/schedule', icon: Calendar },
+      { name: 'documents', href: '/documents', icon: FileText },
+      { name: 'items', href: '/items', icon: Package },
+      { name: 'transactions', href: '/transactions', icon: ArrowLeftRight },
+      { name: 'users', href: '/users', icon: Users },
+      { name: 'schedule', href: '/schedule', icon: Calendar },
+    ]
+  },
+  {
+    name: 'register',
+    icon: Users,
+    children: [
+      { name: 'member', href: '/members', icon: Users },
+      { name: 'birth', href: '/birth', icon: Users },
+      { name: 'death', href: '/death', icon: Users },
+    ]
+  },
+  {
+    name:'schedule',
+    icon: Calendar,
+    children: [
+      { name: 'events', href: '/events', icon: Calendar },
+      { name: 'appointments', href: '/appointments', icon: Calendar },
     ]
   }
 ];
@@ -48,7 +68,7 @@ const MainLayout: React.FC = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [expandedSections, setExpandedSections] = React.useState<string[]>(['Crud']); // Initialize with Crud expanded
-
+  const { t } = useTranslation();
   const handleLogout = async () => {
     try {
       await logout();
@@ -76,7 +96,7 @@ const MainLayout: React.FC = () => {
       >
         {/* Logo */}
         <div className="h-16 flex items-center px-6 border-b">
-          <h1 className="text-xl font-bold">Inventory System</h1>
+          <h1 className="text-xl font-bold">{t('main.title')}</h1>
         </div>
 
         {/* Navigation */}
@@ -95,7 +115,7 @@ const MainLayout: React.FC = () => {
                     )}
                   >
                     <Icon className="mr-3 h-5 w-5" />
-                    {item.name}
+                    {t("navigation." + item.name)}
                     {isExpanded ? (
                       <ChevronDown className="ml-auto h-4 w-4" />
                     ) : (
@@ -118,7 +138,7 @@ const MainLayout: React.FC = () => {
                             )}
                           >
                             <ChildIcon className="mr-3 h-5 w-5" />
-                            {child.name}
+                            {t("navigation." + child.name)}
                           </Link>
                         );
                       })}
@@ -139,7 +159,7 @@ const MainLayout: React.FC = () => {
                 )}
               >
                 <Icon className="mr-3 h-5 w-5" />
-                {item.name}
+                {t("navigation." + item.name)}
               </Link>
             );
           })}
@@ -164,6 +184,15 @@ const MainLayout: React.FC = () => {
           </Button>
 
           <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => i18n.changeLanguage(i18n.language === "en" ? "am" : "en")}
+              className="flex items-center gap-2"
+            >
+              <Globe2 className="h-4 w-4" />
+              <span>{i18n.language === "en" ? "አማርኛ" : "English"}</span>
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -203,7 +232,7 @@ const MainLayout: React.FC = () => {
         <footer className="bg-white border-t py-4 px-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <p className="text-sm text-gray-500">
-              © {new Date().getFullYear()} Inventory Management System
+              © {new Date().getFullYear()} {t('main.title')}
             </p>
             <div className="flex gap-4">
               <Link

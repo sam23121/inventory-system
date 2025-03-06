@@ -136,7 +136,7 @@ export const UserList: React.FC<UserListProps> = ({ users, userTypes, onUserUpda
           <TableHeader>
             <TableRow>
               <TableHead>#</TableHead>
-              <TableHead>Profile</TableHead>
+              {/* <TableHead>Profile</TableHead> */}
               <TableHead>Name</TableHead>
               <TableHead>Phone Number</TableHead>
               {/* <TableHead>Password</TableHead> */}
@@ -152,18 +152,16 @@ export const UserList: React.FC<UserListProps> = ({ users, userTypes, onUserUpda
                 className="cursor-pointer hover:bg-muted/50"
                 onClick={() => setSelectedUser(user)}
               >
-                <TableCell>{filteredUsers.indexOf(user) + 1}</TableCell>
-                <TableCell>
+                {/* <TableCell>{filteredUsers.indexOf(user) + 1}</TableCell> */}
+                <TableCell
+                onClick={() => handleUserClick(user)}
+                >
                   <Avatar className="w-10 h-10">
                     <AvatarImage src={user.profile_picture} />
                     <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                 </TableCell>
-                <TableCell
-                onClick={() => handleUserClick(user)}
-                >
-                  {user.name}
-                </TableCell>
+                <TableCell>{user.name}</TableCell>
                 <TableCell>{user.phone_number}</TableCell>
                 {/* <TableCell className="flex items-center gap-2">
                   <span className="font-mono">

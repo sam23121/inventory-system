@@ -16,6 +16,7 @@ import { Badge } from "../ui/badge";
 import { Alert, AlertDescription } from '../ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { TransactionForm } from './TransactionForm';
+import { useTranslation } from 'react-i18next';
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -24,13 +25,12 @@ interface TransactionListProps {
 }
 
 export const TransactionList: React.FC<TransactionListProps> = ({transactions, transactionTypes, onTransactionUpdate}) => {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
-
 
   const handleApprove = async (id: number) => {
     try {
@@ -103,27 +103,27 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search transactions..."
+            placeholder={t('common.search')}
             className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
-          Create Transaction
+          {t('transactions.createTransaction')}
         </Button>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Date Taken</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>{t('common.id-2')}</TableHead>
+            <TableHead>{t('common.type')}</TableHead>
+            <TableHead>{t('common.description')}</TableHead>
+            <TableHead>{t('common.quantity')}</TableHead>
+            <TableHead>{t('common.dateTaken')}</TableHead>
+            <TableHead>{t('common.status')}</TableHead>
+            <TableHead>{t('common.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -142,7 +142,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
                     size="sm"
                     onClick={() => handleEdit(transaction)}
                   >
-                    View
+                    {t('common.view')}
                   </Button>
                   {transaction.status === 'PENDING' && (
                     <>
@@ -151,14 +151,14 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
                         size="sm"
                         onClick={() => handleApprove(transaction.id)}
                       >
-                        Approve
+                        {t('common.approve')}
                       </Button>
                       <Button 
                         variant="destructive" 
                         size="sm"
                         onClick={() => handleReject(transaction.id)}
                       >
-                        Reject
+                        {t('common.reject')}
                       </Button>
                     </>
                   )}
@@ -172,7 +172,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Transaction</DialogTitle>
+            <DialogTitle>{t('transactions.editTransaction')}</DialogTitle>
           </DialogHeader>
           <TransactionForm
             initialData={selectedTransaction || undefined}
@@ -186,7 +186,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({transactions, t
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create Transaction</DialogTitle>
+            <DialogTitle>{t('transactions.createTransaction')}</DialogTitle>
           </DialogHeader>
           <TransactionForm
             transactionTypes={transactionTypes}

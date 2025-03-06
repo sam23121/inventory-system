@@ -5,9 +5,11 @@ import { TypeList } from "../components/types/TypeList";
 import { documentService, documentTypeService } from "../services/documentService";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert, AlertDescription } from "../components/ui/alert";
+import { useTranslation } from 'react-i18next';
 
 const Documents = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data: documents, isLoading: documentsLoading, error: documentsError } = useQuery({
     queryKey: ['documents'],
@@ -33,7 +35,7 @@ const Documents = () => {
       <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Documents</CardTitle>
+            <CardTitle>{t('documents.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <DocumentList 
@@ -49,7 +51,7 @@ const Documents = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Document Types</CardTitle>
+            <CardTitle>{t('documents.documentTypes')}</CardTitle>
           </CardHeader>
           <CardContent>
             <TypeList 

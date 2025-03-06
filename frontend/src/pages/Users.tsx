@@ -3,12 +3,12 @@ import { UserList } from "../components/users/UserList";
 import { TypeList } from "../components/types/TypeList";
 import { userTypeService, userService } from "../services/userService";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { useEffect, useState } from "react";
-import { User, UserType } from "../types/user";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { UserTypeRoleAssignment } from "../components/users/UserTypeRoleAssignment";
+import { useTranslation } from 'react-i18next';
 
 const Users = () => {
+  const { t } = useTranslation();
 
   const queryClient = useQueryClient();
 
@@ -38,7 +38,7 @@ const Users = () => {
         {/* Users Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Users</CardTitle>
+            <CardTitle>{t('users.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <UserList 
@@ -55,7 +55,7 @@ const Users = () => {
         {/* User Types Section */}
         <Card>
           <CardHeader>
-            <CardTitle>User Types</CardTitle>
+            <CardTitle>{t('users.userTypes')}</CardTitle>
           </CardHeader>
           <CardContent>
             <TypeList 
@@ -72,7 +72,7 @@ const Users = () => {
         {/* Assign Roles to User types */}
         <Card>
           <CardHeader>
-            <CardTitle>Assign Roles to User Types</CardTitle>
+            <CardTitle>{t('users.assignRoles')}</CardTitle>
           </CardHeader>
           <CardContent>
             <UserTypeRoleAssignment userTypes={userTypes ?? []} />

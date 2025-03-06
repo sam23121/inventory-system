@@ -40,13 +40,12 @@ export const UserForm: React.FC<UserFormProps> = ({
     if (validate()) {
       try {
         const userData = {
-          name: formData.name || '',
-          phone_number: formData.phone_number || '',
-          type_id: Number(formData.type_id) || 0,
+          name: formData.name,
+          phone_number: formData.phone_number,
+          type_id: Number(formData.type_id),
           password: formData.password,
           profile_picture: formData.profile_picture,
         };
-        
         await onSubmit(userData);
       } catch (error) {
         console.error('Error submitting form:', error);
@@ -77,27 +76,56 @@ export const UserForm: React.FC<UserFormProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setFormData(prev => ({ ...prev, profile_picture: base64String }));
-      };
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors(prev => ({
+        ...prev,
+        profile_picture: 'File size must be less than 5MB'
+      }));
+      return;
     }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setErrors(prev => ({
+        ...prev,
+        profile_picture: 'Please upload an image file'
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setProfilePreview(base64String);
+      setFormData(prev => ({ ...prev, profile_picture: base64String }));
+      // Clear any previous errors
+      setErrors(prev => {
+        const { profile_picture, ...rest } = prev;
+        return rest;
+      });
+    };
+
+    reader.onerror = () => {
+      setErrors(prev => ({
+        ...prev,
+        profile_picture: 'Error reading file'
+      }));
+    };
+
+    reader.readAsDataURL(file);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex flex-col items-center gap-4">
         <Avatar className="w-24 h-24">
-          <AvatarImage src={profilePreview || undefined} />
+          <AvatarImage src={profilePreview || undefined} alt="Profile" />
           <AvatarFallback>{formData.name?.charAt(0)}</AvatarFallback>
         </Avatar>
-        <div>
+        <div className="flex flex-col items-center gap-2">
           <input
             type="file"
             ref={fileInputRef}
@@ -113,6 +141,9 @@ export const UserForm: React.FC<UserFormProps> = ({
             <Upload className="w-4 h-4 mr-2" />
             Upload Picture
           </Button>
+          {errors.profile_picture && (
+            <span className="text-sm text-red-500">{errors.profile_picture}</span>
+          )}
         </div>
       </div>
 

@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { ScheduleForm } from './ScheduleForm';
 import { Input } from '../ui/input';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 interface ScheduleListProps {
   schedules: Schedule[];
@@ -33,6 +34,7 @@ export const ScheduleList: React.FC<ScheduleListProps> = ({
   users,
   onScheduleUpdate 
 }) => {
+  const { t } = useTranslation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
@@ -102,7 +104,7 @@ export const ScheduleList: React.FC<ScheduleListProps> = ({
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search schedules..."
+            placeholder={t('schedule.searchSchedules')}
             className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -110,24 +112,27 @@ export const ScheduleList: React.FC<ScheduleListProps> = ({
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          Create Schedule
+          {t('schedule.createSchedule')}
         </Button>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Shift</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>{t('common.id-2')}</TableHead>
+            <TableHead>{t('common.name')}</TableHead>
+            <TableHead>{t('common.date')}</TableHead>
+            <TableHead>{t('schedule.shift')}</TableHead>
+            <TableHead>{t('common.type')}</TableHead>
+            <TableHead>{t('common.description')}</TableHead>
+            <TableHead>{t('common.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredSchedules?.map((schedule) => (
             <TableRow key={schedule.id}>
+              {/* counter */}
+              <TableCell>{schedule.id}</TableCell>
               <TableCell>{schedule.user?.name}</TableCell>
               <TableCell>{format(new Date(schedule.date), 'PPP')}</TableCell>
               <TableCell>{schedule.shift?.name}</TableCell>
@@ -153,7 +158,7 @@ export const ScheduleList: React.FC<ScheduleListProps> = ({
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Schedule</DialogTitle>
+            <DialogTitle>{t('schedule.editSchedule')}</DialogTitle>
           </DialogHeader>
           <ScheduleForm
             initialData={selectedSchedule || undefined}
@@ -169,7 +174,7 @@ export const ScheduleList: React.FC<ScheduleListProps> = ({
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create Schedule</DialogTitle>
+            <DialogTitle>{t('schedule.createSchedule')}</DialogTitle>
           </DialogHeader>
           <ScheduleForm
             initialData={undefined}

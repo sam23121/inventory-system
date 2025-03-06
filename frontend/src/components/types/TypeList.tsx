@@ -1,21 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { AxiosResponse } from 'axios';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
 import { Edit, Trash2, Plus, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
 import { Alert, AlertDescription } from '../ui/alert';
 import { usePagination } from '../../hooks/usePagination';
 import { Pagination } from '../ui/pagination';
+import { useTranslation } from 'react-i18next';
+import { TypeForm } from './TypeForm';
 
 interface Type {
   id: number;
@@ -36,36 +30,31 @@ interface TypeListProps {
 }
 
 export const TypeList: React.FC<TypeListProps> = ({ title, service, items, onItemUpdate }) => {
-//   const [items, setItems] = useState<Type[]>([]);
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Type | null>(null);
-  const [formData, setFormData] = useState({ name: '', description: '' });
   const [searchQuery, setSearchQuery] = useState('');
 
   const ITEMS_PER_PAGE = 5;
 
-
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: Partial<Type>) => {
     try {
       if (selectedItem) {
-        await service.update(selectedItem.id, formData);
+        await service.update(selectedItem.id, data);
       } else {
-        await service.create(formData);
+        await service.create(data as Omit<Type, 'id'>);
       }
       await onItemUpdate();
       setIsModalOpen(false);
       setSelectedItem(null);
-      setFormData({ name: '', description: '' });
     } catch (err) {
       setError(`Failed to ${selectedItem ? 'update' : 'create'} ${title}`);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm(`Are you sure you want to delete this ${title}?`)) {
+    if (window.confirm(t('common.deleteConfirmation'))) {
       try {
         await service.delete(id);
         onItemUpdate();
@@ -97,7 +86,6 @@ export const TypeList: React.FC<TypeListProps> = ({ title, service, items, onIte
 
   const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
-//   if (loading) return <div>Loading...</div>;
   if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
 
   return (
@@ -106,7 +94,7 @@ export const TypeList: React.FC<TypeListProps> = ({ title, service, items, onIte
         <div className="relative w-72">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search..."
+            placeholder={t('common.search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-8"
@@ -114,20 +102,19 @@ export const TypeList: React.FC<TypeListProps> = ({ title, service, items, onIte
         </div>
         <Button onClick={() => {
           setSelectedItem(null);
-          setFormData({ name: '', description: '' });
           setIsModalOpen(true);
         }}>
           <Plus className="w-4 h-4 mr-2" />
-          Create {title}
+          {t('common.create')} {t(title)}
         </Button>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>{t('common.name')}</TableHead>
+            <TableHead>{t('common.description')}</TableHead>
+            <TableHead>{t('common.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -141,7 +128,6 @@ export const TypeList: React.FC<TypeListProps> = ({ title, service, items, onIte
                   size="sm"
                   onClick={() => {
                     setSelectedItem(item);
-                    setFormData({ name: item.name, description: item.description });
                     setIsModalOpen(true);
                   }}
                 >
@@ -171,36 +157,13 @@ export const TypeList: React.FC<TypeListProps> = ({ title, service, items, onIte
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedItem ? `Edit ${title}` : `Create ${title}`}</DialogTitle>
+            <DialogTitle>{selectedItem ? t('common.edit') : t('common.create')} {title}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                required
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">
-                {selectedItem ? 'Update' : 'Create'}
-              </Button>
-            </div>
-          </form>
+          <TypeForm
+            initialData={selectedItem || undefined}
+            onSubmit={handleSubmit}
+            onCancel={() => setIsModalOpen(false)}
+          />
         </DialogContent>
       </Dialog>
     </>

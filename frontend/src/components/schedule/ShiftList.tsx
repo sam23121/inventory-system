@@ -10,6 +10,7 @@ import {Alert, AlertDescription} from "../ui/alert";
 import {usePagination} from "../../hooks/usePagination";
 import {Pagination} from "../ui/pagination";
 import {ScheduleShift} from "../../types/schedule";
+import { useTranslation } from 'react-i18next';
 
 interface ShiftListProps {
     title: string;
@@ -24,6 +25,7 @@ interface ShiftListProps {
 }
 
 export const ShiftList: React.FC<ShiftListProps> = ({title, service, items, onItemUpdate}) => {
+    const { t } = useTranslation();
     const [error, setError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<ScheduleShift | null>(null);
@@ -91,7 +93,7 @@ export const ShiftList: React.FC<ShiftListProps> = ({title, service, items, onIt
             <div className="relative w-72">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search..."
+                placeholder={t('common.search')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8"
@@ -103,18 +105,18 @@ export const ShiftList: React.FC<ShiftListProps> = ({title, service, items, onIt
               setIsModalOpen(true);
             }}>
               <Plus className="w-4 h-4 mr-2" />
-              Create {title}
+              {t('schedule.createShift')}
             </Button>
           </div>
     
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Start Time</TableHead>
-                <TableHead>End Time</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t('common.name')}</TableHead>
+                <TableHead>{t('common.description')}</TableHead>
+                <TableHead>{t('schedule.startTime')}</TableHead>
+                <TableHead>{t('schedule.endTime')}</TableHead>
+                <TableHead>{t('common.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -160,11 +162,11 @@ export const ShiftList: React.FC<ShiftListProps> = ({title, service, items, onIt
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{selectedItem ? `Edit ${title}` : `Create ${title}`}</DialogTitle>
+                <DialogTitle>{selectedItem ? t('schedule.editShift') : t('schedule.createShift')}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">{t('common.name')}</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -173,7 +175,7 @@ export const ShiftList: React.FC<ShiftListProps> = ({title, service, items, onIt
                   />
                 </div>
                 <div>
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">{t('common.description')}</Label>
                   <Input
                     id="description"
                     value={formData.description}
@@ -182,7 +184,7 @@ export const ShiftList: React.FC<ShiftListProps> = ({title, service, items, onIt
                   />
                 </div>
                 <div>
-                  <Label htmlFor="start_time">Start Time</Label>
+                  <Label htmlFor="start_time">{t('schedule.startTime')}</Label>
                   <Input
                     id="start_time"
                     value={formData.start_time}
@@ -191,7 +193,7 @@ export const ShiftList: React.FC<ShiftListProps> = ({title, service, items, onIt
                   />
                 </div>
                 <div>
-                    <Label htmlFor="end_time">End Time</Label>
+                    <Label htmlFor="end_time">{t('schedule.endTime')}</Label>
                     <Input
                         id="end_time"
                         value={formData.end_time}
@@ -201,10 +203,10 @@ export const ShiftList: React.FC<ShiftListProps> = ({title, service, items, onIt
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                   <Button type="submit">
-                    {selectedItem ? 'Update' : 'Create'}
+                    {selectedItem ? t('common.update') : t('common.create')}
                   </Button>
                 </div>
               </form>

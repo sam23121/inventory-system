@@ -1,0 +1,154 @@
+{
+
+  "common": {
+    "loading": "Loading...",
+    "error": "Failed to fetch data",
+    "networkError": "Network connection error",
+    "unauthorized": "Unauthorized access",
+    "sessionExpired": "Session expired, please login again",
+    "login": "Login",
+    "logout": "Logout",
+    "settings": "Settings",
+
+    "search": "Search",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "view": "View",
+    "update": "Update",
+    "close": "Close",
+
+    "id": "ID",
+    "id-2": "#",
+    "name": "Name",
+    "description": "Description",
+    "actions": "Actions",
+    "noData": "No data available",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "status": "Status",
+    "type": "Type",
+
+    "date": "Date",
+    "dateTaken": "Date Taken",
+    "dateReturned": "Date Returned",
+    "dateIssued": "Date Issued",
+    "dateDue": "Date Due",
+    "dateMarried": "Date Married",
+    "dateUpdated": "Date Updated",
+    "dateCreated": "Date Created",
+
+    "page": "Page",
+    "of": "of",
+    "previous": "Previous",
+    "next": "Next"
+    
+  },
+
+  "numbers": {
+    "1": "1",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9",
+    "10": "10"
+  },
+  
+  "main": {
+    "title": "Church Managment",
+    "welcome": "Welcome",
+    "description": "This is an inventory management system.",
+    "footer": "Church Management System © 2025"
+  },
+
+  "navigation":{
+    "dashboard": "Dashboard",
+    "documents": "Documents",
+    "items": "Items",
+    "transactions": "Transactions",
+    "users": "Users",
+    "schedule": "Schedule",
+    "settings": "Settings",
+    "members": "Members",
+    "roles": "Roles",
+    "birth": "Birth",
+    "death": "Death",
+    "marriage": "Marriage",
+    "divorce": "Divorce",
+    "register": "Register",
+    "member": "Member",
+    "admin": "Admin"
+  },
+
+  "dashboard": {
+    "title": "Dashboard",
+    "totalDocuments": "Total Documents",
+    "totalItems": "Total Items",
+    "activeUsers": "Active Users",
+    "transactions": "Transactions",
+    "overview": "Overview",
+    "fromLastMonth": "from last month"
+  },
+
+  "documents": {
+    "title": "Documents",
+    "documentTypes": "Document Types",
+    "createDocument": "Create Document",
+    "editDocument": "Edit Document",
+    "createDocumentType": "Create Document Type",
+    "editDocumentType": "Edit Document Type"
+  },
+
+  "items": {
+    "title": "Items",
+    "itemTypes": "Item Types",
+    "createItem": "Create Item",
+    "editItem": "Edit Item",
+    "createItemType": "Create Item Type",
+    "editItemType": "Edit Item Type"
+  },
+
+  "transactions": {
+    "title": "Transactions",
+    "transactionTypes": "Transaction Types",
+    "transactionItems": "Transaction Items",
+    "createTransaction": "Create Transaction",
+    "editTransaction": "Edit Transaction"
+  },
+
+  "users": {
+    "title": "Users",
+    "userTypes": "User Types",
+    "assignRoles": "Assign Roles to User Types",
+    "createUser": "Create User",
+    "editUser": "Edit User",
+    "createUserType": "Create User Type",
+    "editUserType": "Edit User Type"
+  },
+
+  "schedule": {
+    "title": "Schedule",
+    "scheduleTypes": "Schedule Types",
+    "scheduleShifts": "Schedule Shifts",
+    "createSchedule": "Create Schedule",
+    "editSchedule": "Edit Schedule",
+    "createScheduleType": "Create Schedule Type",
+    "editScheduleType": "Edit Schedule Type",
+    "createShift": "Create Shift",
+    "editShift": "Edit Shift"
+  },
+
+  "login": {
+    "phoneNumber": "Phone Number",
+    "password": "Password",
+    "invalidCredentials": "Invalid credentials"
+  }
+}
