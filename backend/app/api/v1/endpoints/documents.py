@@ -183,12 +183,12 @@ def update_document_quantity(
     return db_document
 
 
-@router.get("/membership/", response_model=List[schemas.MembershipDocument])
+@router.get("/member/", response_model=List[schemas.MembershipDocument])
 def read_membership_documents(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     documents = db.query(models.MembershipDocument).offset(skip).limit(limit).all()
     return documents
 
-@router.put("/membership/{document_id}", response_model=schemas.MembershipDocument)
+@router.put("/member/{document_id}", response_model=schemas.MembershipDocument)
 def update_membership_document(document_id: int, document: schemas.MembershipDocumentCreate, db: Session = Depends(get_db)):
     db_document = db.query(models.MembershipDocument).filter(models.MembershipDocument.id == document_id).first()
     if db_document is None:
@@ -201,7 +201,7 @@ def update_membership_document(document_id: int, document: schemas.MembershipDoc
     db.refresh(db_document)
     return db_document
 
-@router.post("/membership/", response_model=schemas.MembershipDocument)
+@router.post("/member/", response_model=schemas.MembershipDocument)
 def create_membership_document(document: schemas.MembershipDocumentCreate, db: Session = Depends(get_db)):
     db_document = models.MembershipDocument(**document.dict())
     # generate serial number
@@ -212,7 +212,7 @@ def create_membership_document(document: schemas.MembershipDocumentCreate, db: S
     db.refresh(db_document)
     return db_document
 
-@router.delete("/membership/{document_id}")
+@router.delete("/member/{document_id}")
 def delete_membership_document(document_id: int, db: Session = Depends(get_db)):
     db_document = db.query(models.MembershipDocument).filter(models.MembershipDocument.id == document_id).first()
     if db_document is None:

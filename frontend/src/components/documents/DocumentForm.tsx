@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Document, DocumentType } from '../../types/document';
 import { FormField } from '../ui/form-field';
 import { Button } from '../ui/button';
-
+import { useTranslation } from 'react-i18next';
 interface DocumentFormProps {
   initialData?: Partial<Document>;
   documentTypes: DocumentType[];
@@ -16,6 +16,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+
   const [formData, setFormData] = useState<Partial<Document>>(
     initialData || {
       name: '',
@@ -25,6 +26,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
     }
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useTranslation();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -68,7 +70,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
-        label="Name"
+        label={t('common.name')}
         name="name"
         value={formData.name}
         onChange={handleChange}
@@ -76,7 +78,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
       />
       
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Type</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.type')}</label>
         <select
           name="type_id"
           value={formData.type_id}

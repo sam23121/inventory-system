@@ -72,6 +72,18 @@
     "footer": "Church Management System © 2025"
   },
 
+  "table": {
+    "name": "Name",
+    "description": "Description",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total",
+    "date": "Date",
+    "type": "Type",
+    "status": "Status",
+    "actions": "Actions"
+  },
+
   "navigation":{
     "dashboard": "Dashboard",
     "documents": "Documents",
@@ -156,5 +168,14 @@
     "phoneNumber": "Phone Number",
     "password": "Password",
     "invalidCredentials": "Invalid credentials"
+  },
+  
+  "baptism":{
+    "title": "Baptism",
+    "baptismTypes": "Baptism Types",
+    "createBaptism": "Create Baptism",
+    "editBaptism": "Edit Baptism",
+    "createBaptismType": "Create Baptism Type",
+    "editBaptismType": "Edit Baptism Type"
   }
 }

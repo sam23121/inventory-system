@@ -1,84 +1,110 @@
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import ScheduleList from "../components/schedule/ScheduleList";
-import { TypeList } from "../components/types/TypeList";
 import { scheduleService, scheduleTypeService, scheduleShiftService } from "../services/scheduleService";
-import { userService } from "../services/userService";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ShiftList } from "../components/schedule/ShiftList";
 import { useTranslation } from 'react-i18next';
+import { LoadingProgress } from "../components/ui/loading-progress";
+import { TableList } from "../components/table/TableList";
+import { ScheduleForm } from '../components/schedule/ScheduleForm';
+import { TypeForm } from '../components/types/TypeForm';
+import { ShiftForm } from '../components/schedule/ShiftForm';
 
 const Schedule = () => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
-  const { data: schedules, isLoading: schedulesLoading, error: schedulesError } = useQuery({
+  const { data: schedules = [], isLoading: schedulesLoading, error: schedulesError } = useQuery({
     queryKey: ['schedules'],
     queryFn: async () => {
       const response = await scheduleService.getAll();
-      return response.data;
+      return response.data || [];
     }
   });
-  
-  const { data: scheduleTypes, isLoading: typesLoading, error: typesError } = useQuery({
+
+  const { data: scheduleTypes = [], isLoading: typesLoading, error: typesError } = useQuery({
     queryKey: ['scheduleTypes'],
     queryFn: async () => {
       const response = await scheduleTypeService.getAll();
-      return response.data;
+      return response.data || [];
     }
   });
 
-  const {data: scheduleShifts, isLoading: shiftsLoading, error: shiftsError} = useQuery({
-    queryKey: ['scheduleShifts'],
+  const { data: shifts = [], isLoading: shiftsLoading, error: shiftsError } = useQuery({
+    queryKey: ['shifts'],
     queryFn: async () => {
       const response = await scheduleShiftService.getAll();
-      return response.data;
+      return response.data || [];
     }
   });
 
-  const {data: users, isLoading: usersLoading, error: usersError} = useQuery({
-    queryKey: ['users'],
-    queryFn: async () => {
-      const response = await userService.getAll();
-      return response.data;
-    }
-  });
+  const scheduleColumns = [
+    { header: "Type", accessor: "schedule_type.name" },
+    { header: "Shift", accessor: "shift.name" },
+    { 
+      header: "Date", 
+      accessor: "date",
+      render: (item: any) => new Date(item.date).toLocaleDateString()
+    },
+    { header: "Description", accessor: "description" },
+    { header: "User", accessor: "user.name" }
+  ];
 
+  const typeColumns = [
+    { header: "Name", accessor: "name" },
+    { header: "Description", accessor: "description" }
+  ];
 
-  if (schedulesLoading || typesLoading) return <div>{t('common.loading')}</div>;
-  if (schedulesError || typesError) return <Alert variant="destructive"><AlertDescription>Failed to fetch data</AlertDescription></Alert>;
+  const shiftColumns = [
+    { header: "Name", accessor: "name" },
+    { header: "Start Time", accessor: "start_time" },
+    { header: "End Time", accessor: "end_time" },
+    { header: "Description", accessor: "description" }
+  ];
+
+  if (schedulesLoading || typesLoading || shiftsLoading) return <LoadingProgress />;
+  if (schedulesError || typesError || shiftsError) return <Alert variant="destructive"><AlertDescription>Failed to fetch data</AlertDescription></Alert>;
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>{t('schedule.title')}</CardTitle>
-          </CardHeader>          
+            <CardTitle>{t('schedules.title')}</CardTitle>
+          </CardHeader>
           <CardContent>
-            <ScheduleList 
-              schedules={schedules ?? []}
-              scheduleTypes={scheduleTypes ?? []}
-              scheduleShifts={scheduleShifts ?? []}
-              users={users ?? []}
-              onScheduleUpdate={() => {
+            <TableList 
+              title="Schedule"
+              items={schedules}
+              columns={scheduleColumns}
+              Form={(props) => (
+                <ScheduleForm 
+                  {...props} 
+                  scheduleTypes={scheduleTypes}
+                  shifts={shifts}
+                />
+              )}
+              service={scheduleService}
+              onUpdate={() => {
                 queryClient.invalidateQueries({ queryKey: ['schedules'] });
-                queryClient.invalidateQueries({ queryKey: ['scheduleTypes'] });
               }}
+              searchFields={['description', 'user.name']}
             />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('schedule.scheduleTypes')}</CardTitle>
+            <CardTitle>{t('schedules.scheduleTypes')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <TypeList 
-              title={t('schedule.scheduleTypes')}
+            <TableList 
+              title="Schedule Type"
+              items={scheduleTypes}
+              columns={typeColumns}
+              Form={TypeForm}
               service={scheduleTypeService}
-              items={scheduleTypes ?? []}
-              onItemUpdate={() => {
+              onUpdate={() => {
                 queryClient.invalidateQueries({ queryKey: ['scheduleTypes'] });
               }}
             />
@@ -87,15 +113,17 @@ const Schedule = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('schedule.scheduleShifts')}</CardTitle>
+            <CardTitle>{t('schedules.shifts')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ShiftList 
-              title={t('schedule.scheduleShifts')}
+            <TableList 
+              title="Shift"
+              items={shifts}
+              columns={shiftColumns}
+              Form={ShiftForm}
               service={scheduleShiftService}
-              items={scheduleShifts ?? []}
-              onItemUpdate={() => {
-                queryClient.invalidateQueries({ queryKey: ['scheduleShifts'] });
+              onUpdate={() => {
+                queryClient.invalidateQueries({ queryKey: ['shifts'] });
               }}
             />
           </CardContent>
