@@ -1,0 +1,155 @@
+{
+  "common": {
+    "loading": "እባክዎ ይጠብቁ...",
+    "error": "መረጃውን ማግኘት አልተቻለም",
+    "networkError": "የኢንተርኔት ግንኙነት ችግር",
+    "unauthorized": "ያልተፈቀደ መዳረሻ",
+    "sessionExpired": "የመስሪያ ጊዜው አልቋል፣ እባክዎ እንደገና ይግቡ",
+    "login": "ግባ",
+    "logout": "ውጣ",
+    "settings": "ቅንብሮች",
+
+    "search": "ፈልግ",
+    "add": "አክል",
+    "edit": "ማስተካከል",
+    "delete": "ሰርዝ",
+    "save": "አስቀምጥ",
+    "cancel": "ተቀብለኝ",
+    "create": "ፍጠር",
+    "view": "ተመልከት",
+    "update": "አስተካክል",
+    "close": "ዝጋ",
+    "approve": "አረጋግጥ",
+    "reject": "ከልክል",
+    "send": "ላክ",
+    
+    "id": "መለያ-ቁጥር",
+    "id-2": "ተራ-ቁጥር",
+    "name": "ስም",
+    "description": "መግለጫ",
+    "actions": "ተግባራት",
+    "noData": "ምንም መረጃ የለም",
+    "quantity": "ብዛት",
+    "price": "ዋጋ",
+    "total": "ጠቅላላ",
+    "date": "ቀን",
+    "type": "አይነት",
+    "status": "ሁኔታ",
+
+    "dateUpdated": "የተሻሻለበት ቀን",
+    "dateCreated": "የተፈጠረበት ቀን",
+    "dateTaken": "የተሰጠበት ቀን",
+    "dateReturned": "የተመለሰበት ቀን",
+    "dateIssued": "የተሰጠበት ቀን",
+    "dateDue": "የተመለሰበት ቀን",
+    "dateMarried": "የተጋብቻበት ቀን",
+
+    "page": "ገጽ",
+    "of": "ከ",
+    "previous": "ወደኋላ",
+    "next": "ወደፊት"
+  },
+
+  "numbers": {
+    "1": "፩",
+    "2": "፪",
+    "3": "፫",
+    "4": "፬",
+    "5": "፭",
+    "6": "፮",
+    "7": "፯",
+    "8": "፰",
+    "9": "፱",
+    "10": "፲"
+  },
+
+  "main": {
+    "title": "የቤተ-ክርስትያን ማስተዳደሪያ",
+    "welcome": "እንኳን ደህና መጡ",
+    "description": "የእቃ ስርዓት የሚሆን እና የሚቀጥለው የእቃ ስርዓት ነው።",
+    "footer": "የቤተ-ክርስትያን ማስተዳደሪያ © 2025"
+  },
+  
+  "navigation": {
+    "dashboard": "ዳሽቦርድ",
+    "documents": "ሰነዶች",
+    "items": "እቃዎች",
+    "transactions": "ግብይቶች",
+    "users": "ተጠቃሚዎች",
+    "schedule": "መርሃ ግብር",
+    "settings": "ቅንብሮች",
+    "members": "አባላት",
+    "roles": "ሚናዎች",
+    "baptism": "ክርስትና",
+    "burial": "ቀብር",
+    "marriage": "ጋብቻ",
+    "divorce": "ፍች",
+    "register": "መዝገብ",
+    "member": "አባላት",
+    "admin": "አስተዳዳሪ",
+    "events": "ክስተቶች",
+    "reports": "ሪፖርቶች",
+    "appointments": "ቀጠሮ"
+  },
+
+  "dashboard": {
+    "title": "ዳሽቦርድ",
+    "totalDocuments": "ጠቅላላ ሰነዶች",
+    "totalItems": "ጠቅላላ እቃዎች",
+    "activeUsers": "አባላት",
+    "transactions": "ግብይቶች",
+    "overview": "አጠቃላይ እይታ",
+    "fromLastMonth": "ካለፈው ወር"
+  },
+
+  "types": {
+    "createTypes": "አይነት ፍጠር"
+  },
+
+  "documents": {
+    "title": "ሰነዶች",
+    "documentTypes": "የሰነድ አይነቶች",
+    "createDocument": "ሰነድ ፍጠር",
+    "createDocumentType": "ሰነድ አይነት ፍጠር",
+    "editDocument": "ሰነድ ማስተካከል",
+    "deleteDocument": "ሰነድ ሰርዝ",
+    "editDocumentType": "ሰነድ አይነት ማስተካከል"
+  },
+
+  "items": {
+    "title": "እቃዎች",
+    "itemTypes": "የእቃ አይነቶች",
+    "createItem": "እቃ ፍጠር",
+    "createItemType": "እቃ አይነት ፍጠር"
+  },
+
+  "transactions": {
+    "title": "ግብይቶች",
+    "transactionTypes": "የግብይት አይነቶች",
+    "createTransaction": "ግብይት ፍጠር",
+    "createTransactionType": "ግብይት አይነት ፍጠር"
+  },
+
+  "users": {
+    "title": "ተጠቃሚዎች",
+    "userTypes": "የተጠቃሚ አይነቶች",
+    "assignRoles": "ሚናዎችን ይሰይሙ",
+    "createUser": "ተጠቃሚ ፍጠር",
+    "createUserType": "ተጠቃሚ አይነት ፍጠር"
+  },
+
+  "schedule": {
+    "title": "መርሃ ግብር",
+    "scheduleTypes": "የመርሃ ግብር አይነቶች",
+    "scheduleShifts": "የስራ ቅጠሮች",
+    "createSchedule": "መርሃ ግብር ፍጠር",
+    "createScheduleType": "መርሃ ግብር አይነት ፍጠር",
+    "createShift": "ስራ ቅጠር ፍጠር"
+  },
+
+  "login": {
+    "phoneNumber": "ስልክ ቁጥር",
+    "password": "የይለፍ ቃል",
+    "invalidCredentials": "የተሳሳተ መረጃ"
+  }
+}

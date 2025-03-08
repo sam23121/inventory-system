@@ -16,9 +16,11 @@ export interface User {
   name: string;
   phone_number: string;
   type_id: number;
+  kristna_abat?: User;
   password?: string;
   confirm_password?: string;
   user_type?: UserType;  // This will include the roles through the UserType
+  profile_picture?: string;
 }
 
 export interface AuthState {

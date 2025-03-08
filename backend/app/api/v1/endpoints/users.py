@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Tuple
 from ....db.session import SessionLocal, engine
 from .... import models, schemas
 from ....core.security import get_password_hash, get_current_user
+from ....core.audit import audit_context
+from ....api.deps import get_db_user
 import pprint
 
 # Create tables
@@ -20,23 +22,24 @@ def get_db():
         db.close()
 
 @router.post("/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def create_user(user: schemas.UserCreate, db_user: Tuple[Session, models.User] = Depends(get_db_user)):
+    db, current_user = db_user
     db_user = db.query(models.User).filter(models.User.phone_number == user.phone_number).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Phone number already registered")
     
-    hashed_password = get_password_hash(user.password)
-    
-    db_user = models.User(
-        phone_number=user.phone_number,
-        name=user.name,
-        hashed_password=hashed_password,
-        type_id=user.type_id,
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    with audit_context(db, "CREATE"):
+        hashed_password = get_password_hash(user.password)
+        db_user = models.User(
+            phone_number=user.phone_number,
+            name=user.name,
+            hashed_password=hashed_password,
+            type_id=user.type_id,
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
 
 @router.get("/", response_model=List[schemas.User])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -51,30 +54,94 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 @router.put("/{user_id}", response_model=schemas.User)
-def update_user(user_id: int, user: schemas.UserCreate, db: Session = Depends(get_db)):
+def update_user(user_id: int, user: schemas.UserCreate, db_user: Tuple[Session, models.User] = Depends(get_db_user)):
+    db, current_user = db_user
     db_user = db.query(models.User).filter(models.User.id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    for var, value in vars(user).items():
-        if var != "password":
-            setattr(db_user, var, value)
-        else:
-            db_user.hashed_password = get_password_hash(value)
-    
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    with audit_context(db, "UPDATE"):
+        for var, value in vars(user).items():
+            if var != "password":
+                setattr(db_user, var, value)
+            else:
+                db_user.hashed_password = get_password_hash(value)
+        
+        db.commit()
+        db.refresh(db_user)
+        return db_user
 
 @router.delete("/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)):
+def delete_user(user_id: int, db_user: Tuple[Session, models.User] = Depends(get_db_user)):
+    db, current_user = db_user
     db_user = db.query(models.User).filter(models.User.id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    db.delete(db_user)
-    db.commit()
-    return {"message": "User deleted successfully"} 
+    with audit_context(db, "DELETE"):
+        db.delete(db_user)
+        db.commit()
+        return {"message": "User deleted successfully"} 
+
+@router.put("/{user_id}/profile-picture")
+async def update_profile_picture(
+    user_id: int,
+    image: str,  # Base64 encoded image
+    db_user: Tuple[Session, models.User] = Depends(get_db_user)
+):
+    db, current_user = db_user
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    with audit_context(db, "UPDATE"):
+        db_user.profile_picture = image
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    
+@router.put("/{user_id}/kristna-abat/{kristna_abat_id}")
+def assign_kristna_abat(
+    user_id: int,
+    kristna_abat_id: int,
+    db_user: Tuple[Session, models.User] = Depends(get_db_user)
+):
+    db, current_user = db_user
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    kristna_abat = db.query(models.User).filter(models.User.id == kristna_abat_id).first()
+    
+    if not user or not kristna_abat:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # Check if kristna_abat is a priest
+    priest_type = db.query(models.UserType).filter(models.UserType.name == "Priest").first()
+    if kristna_abat.type_id != priest_type.id:
+        raise HTTPException(
+            status_code=400,
+            detail="Only priests can be assigned as Kristna Abat"
+        )
+    
+    with audit_context(db, "UPDATE"):
+        user.kristna_abat_id = kristna_abat_id
+        db.commit()
+        db.refresh(user)
+        return user
+
+@router.delete("/{user_id}/kristna-abat")
+def remove_kristna_abat(
+    user_id: int,
+    db_user: Tuple[Session, models.User] = Depends(get_db_user)
+):
+    db, current_user = db_user
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    with audit_context(db, "UPDATE"):
+        user.kristna_abat_id = None
+        db.commit()
+        db.refresh(user)
+        return user
 
 @router.get("/roles/", response_model=List[schemas.Role])
 def read_roles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -176,4 +243,26 @@ def create_type(type: schemas.UserTypeCreate, db: Session = Depends(get_db)):
     db.refresh(db_type)
     return db_type
 
+@router.put("/types/{type_id}/roles/{role_id}/")
+def assign_role_to_type(type_id: int, role_id: int, db: Session = Depends(get_db)):
+    db_type = db.query(models.UserType).filter(models.UserType.id == type_id).first()
+    db_role = db.query(models.Role).filter(models.Role.id == role_id).first()
+    
+    if not db_type or not db_role:
+        raise HTTPException(status_code=404, detail="Type or Role not found")
+    
+    db_type.roles.append(db_role)
+    db.commit()
+    return {"message": "Role assigned to type successfully"}
 
+@router.delete("/types/{type_id}/roles/{role_id}/")
+def remove_role_from_type(type_id: int, role_id: int, db: Session = Depends(get_db)):
+    db_type = db.query(models.UserType).filter(models.UserType.id == type_id).first()
+    db_role = db.query(models.Role).filter(models.Role.id == role_id).first()
+    
+    if not db_type or not db_role:
+        raise HTTPException(status_code=404, detail="Type or Role not found")
+    
+    db_type.roles.remove(db_role)
+    db.commit()
+    return {"message": "Role removed from type successfully"}

@@ -12,6 +12,7 @@ export interface TransactionType {
     dateTaken: string;
     dateReturned: string | null;
     status: string;
-    approvedBy?: number;
-    requestedBy?: number;
+    approved_by?: number;
+    requested_by?: number;
+    trans_type?: TransactionType;
   }

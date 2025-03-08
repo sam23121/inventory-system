@@ -11,55 +11,60 @@ import {
   TableRow,
 } from "../ui/table";
 import { Input } from "../ui/input";
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { Badge } from "../ui/badge";
 import { Alert, AlertDescription } from '../ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { TransactionForm } from './TransactionForm';
+import { useTranslation } from 'react-i18next';
+import { usePagination } from '../../hooks/usePagination';
+import { Pagination } from '../ui/pagination';
 
-export const TransactionList: React.FC = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+interface TransactionListProps {
+  transactions: Transaction[];
+  transactionTypes: TransactionType[];
+  onTransactionUpdate: () => void;
+}
+
+export const TransactionList: React.FC<TransactionListProps> = ({transactions, transactionTypes, onTransactionUpdate}) => {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [transactionTypes, setTransactionTypes] = useState<TransactionType[]>([]);
 
-  const fetchTransactions = async () => {
-    try {
-      setLoading(true);
-      const response = await transactionService.getAll();
-      setTransactions(response.data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch transactions');
-      console.error('Error fetching transactions:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const ITEMS_PER_PAGE = 5;
 
+  const filteredTransactions = transactions.filter(transaction => {
+    const searchLower = searchTerm.toLowerCase();
+    const type = transaction.trans_type?.name?.toLowerCase() ?? '';
+    const description = transaction.description?.toLowerCase() ?? '';
+    
+    return type.includes(searchLower) || description.includes(searchLower);
+  });
 
+  const {
+    currentPage,
+    totalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    startIndex,
+    endIndex,
+    hasNextPage,
+    hasPrevPage
+  } = usePagination({
+    totalItems: filteredTransactions.length,
+    itemsPerPage: ITEMS_PER_PAGE
+  });
 
-  useEffect(() => {
-    fetchTransactions();
-    const fetchTransactionTypes = async () => {
-      try {
-        const response = await transactionTypeService.getAll();
-        setTransactionTypes(response.data);
-      } catch (err) {
-        console.error('Error fetching transaction types:', err);
-      }
-    };
-    fetchTransactionTypes();
-  }, []);
+  const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
 
   const handleApprove = async (id: number) => {
     try {
       await transactionService.approve(id);
-      await fetchTransactions();
+      await onTransactionUpdate();
     } catch (err) {
       setError('Failed to approve transaction');
     }
@@ -68,7 +73,7 @@ export const TransactionList: React.FC = () => {
   const handleReject = async (id: number) => {
     try {
       await transactionService.reject(id);
-      await fetchTransactions();
+      await onTransactionUpdate();
     } catch (err) {
       setError('Failed to reject transaction');
     }
@@ -83,7 +88,7 @@ export const TransactionList: React.FC = () => {
     try {
       if (selectedTransaction?.id) {
         await transactionService.update(selectedTransaction.id, data);
-        await fetchTransactions();
+        onTransactionUpdate();
         setIsEditModalOpen(false);
         setSelectedTransaction(null);
       }
@@ -95,7 +100,7 @@ export const TransactionList: React.FC = () => {
   const handleCreateSubmit = async (data: Omit<Transaction, 'id'>) => {
     try {
       await transactionService.create(data);
-      await fetchTransactions();
+      onTransactionUpdate();
       setIsCreateModalOpen(false);
     } catch (err) {
       setError('Failed to create transaction');
@@ -111,15 +116,6 @@ export const TransactionList: React.FC = () => {
     return <Badge variant={variants[status.toLowerCase()]}>{status}</Badge>;
   };
 
-  const filteredTransactions = transactions.filter(transaction => {
-    const searchLower = searchTerm.toLowerCase();
-    const type = transaction.type?.toString().toLowerCase() ?? '';
-    const description = transaction.description?.toLowerCase() ?? '';
-    
-    return type.includes(searchLower) || description.includes(searchLower);
-  });
-
-  if (loading) return <div>Loading...</div>;
   if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
 
   return (
@@ -128,34 +124,35 @@ export const TransactionList: React.FC = () => {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search transactions..."
+            placeholder={t('common.search')}
             className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
-          Create Transaction
+          <Plus className="w-4 h-4 mr-2" />
+          {t('transactions.createTransaction')}
         </Button>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Date Taken</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>{t('common.id-2')}</TableHead>
+            <TableHead>{t('common.type')}</TableHead>
+            <TableHead>{t('common.description')}</TableHead>
+            <TableHead>{t('common.quantity')}</TableHead>
+            <TableHead>{t('common.dateTaken')}</TableHead>
+            <TableHead>{t('common.status')}</TableHead>
+            <TableHead>{t('common.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredTransactions.map((transaction) => (
+          {paginatedTransactions.map((transaction) => (
             <TableRow key={transaction.id}>
               <TableCell>{transaction.id}</TableCell>
-              <TableCell>{transaction.type}</TableCell>
+              <TableCell>{transaction.trans_type?.name}</TableCell>
               <TableCell>{transaction.description}</TableCell>
               <TableCell>{transaction.quantity}</TableCell>
               <TableCell>{new Date(transaction.dateTaken).toLocaleDateString()}</TableCell>
@@ -167,23 +164,23 @@ export const TransactionList: React.FC = () => {
                     size="sm"
                     onClick={() => handleEdit(transaction)}
                   >
-                    View
+                    {t('common.view')}
                   </Button>
-                  {transaction.status === 'PENDING' && (
+                  {transaction.status === 'pending' && (
                     <>
                       <Button 
                         variant="default" 
                         size="sm"
                         onClick={() => handleApprove(transaction.id)}
                       >
-                        Approve
+                        {t('common.approve')}
                       </Button>
                       <Button 
                         variant="destructive" 
                         size="sm"
                         onClick={() => handleReject(transaction.id)}
                       >
-                        Reject
+                        {t('common.reject')}
                       </Button>
                     </>
                   )}
@@ -194,10 +191,18 @@ export const TransactionList: React.FC = () => {
         </TableBody>
       </Table>
 
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+      />
+
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Transaction</DialogTitle>
+            <DialogTitle>{t('transactions.editTransaction')}</DialogTitle>
           </DialogHeader>
           <TransactionForm
             initialData={selectedTransaction || undefined}
@@ -211,7 +216,7 @@ export const TransactionList: React.FC = () => {
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create Transaction</DialogTitle>
+            <DialogTitle>{t('transactions.createTransaction')}</DialogTitle>
           </DialogHeader>
           <TransactionForm
             transactionTypes={transactionTypes}

@@ -1,140 +1,221 @@
-import { useState, useEffect } from "react";
-import { Calendar } from "../ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { userService } from "../../services/userService";
-import { scheduleService } from "../../services/scheduleService";
-import { User } from "../../types/user";
-import { Loader2 } from "lucide-react";
-import { Alert, AlertDescription } from "../ui/alert";
+import React, { useState } from 'react';
+import { Schedule, ScheduleShift, ScheduleType } from '../../types/schedule';
+import { User } from '../../types/user';
+import { scheduleService } from '../../services/scheduleService';
+import { Alert, AlertDescription } from '../ui/alert';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../ui/table';
+import { Button } from '../ui/button';
+import { Edit, Trash2, Plus, Search } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { ScheduleForm } from './ScheduleForm';
+import { Input } from '../ui/input';
+import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
+import { usePagination } from '../../hooks/usePagination';
+import { Pagination } from '../ui/pagination';
 
-export const ScheduleList = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [selectedUser, setSelectedUser] = useState("");
-  const [selectedShift, setSelectedShift] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ScheduleListProps {
+  schedules: Schedule[];
+  scheduleTypes: ScheduleType[];
+  scheduleShifts: ScheduleShift[];
+  users: User[];
+  onScheduleUpdate: () => void;
+}
+
+export const ScheduleList: React.FC<ScheduleListProps> = ({ 
+  schedules, 
+  scheduleTypes,
+  scheduleShifts,
+  users,
+  onScheduleUpdate 
+}) => {
+  const { t } = useTranslation();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string | null>(null);
-
-  const shifts = [
-    { id: "morning", label: "Morning (8AM - 4PM)" },
-    { id: "afternoon", label: "Afternoon (4PM - 12AM)" },
-    { id: "night", label: "Night (12AM - 8AM)" },
-  ];
-
-  useEffect(() => {
-    const fetchUsers = async () => {
+  
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Are you sure you want to delete this schedule?')) {
       try {
-        setLoading(true);
-        const response = await userService.getAll();
-        setUsers(response.data);
+        await scheduleService.delete(id);
+        onScheduleUpdate();
       } catch (err) {
-        setError("Failed to fetch users");
-        console.error("Error fetching users:", err);
-      } finally {
-        setLoading(false);
+        setError('Failed to delete schedule');
       }
-    };
-
-    fetchUsers();
-  }, []);
-
-  const handleScheduleAssignment = async () => {
-    if (!date || !selectedUser || !selectedShift) {
-      setError("Please select all required fields");
-      return;
-    }
-
-    try {
-      await scheduleService.create({
-        user_id: parseInt(selectedUser),
-        // shift: selectedShift,
-        date: date.toISOString(),
-        description: "Scheduled shift",
-        type: "prayer",
-        assigned_by_id: 1,
-        approved_by_id: 2,
-      });
-      
-      // Clear selections after successful assignment
-      setSelectedUser("");
-      setSelectedShift("");
-      setError(null);
-    } catch (err) {
-      setError("Failed to assign schedule");
-      console.error("Error assigning schedule:", err);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  const handleEdit = (schedule: Schedule) => {
+    setSelectedSchedule(schedule);
+    setSelectedSchedule(schedule);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (data: Partial<Schedule>) => {
+    try {
+      if (selectedSchedule?.id) {
+        await scheduleService.update(selectedSchedule.id, {
+          ...data,
+          date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
+        });
+        await onScheduleUpdate();
+        setIsEditModalOpen(false);
+        setSelectedSchedule(null);
+      }
+    } catch (err) {
+      console.error('Failed to update schedule:', err);
+    }
+  };
+
+  const handleCreateSubmit = async (data: Partial<Schedule>) => {
+    try {
+      await scheduleService.create({
+        user_id: data.user_id as number,
+        shift_id: data.shift_id as number,
+        date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
+        description: data.description as string,
+        type_id: data.type_id as number,
+        assigned_by_id: 1,
+        approved_by_id: 1,
+      });
+      await onScheduleUpdate();
+      setIsCreateModalOpen(false);
+    } catch (err) {
+      console.error('Failed to create schedule:', err);
+    }
+  };
+
+  const ITEMS_PER_PAGE = 5;
+
+  const filteredSchedules = schedules?.filter(schedule => 
+    schedule.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    schedule.schedule_type?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    schedule.shift?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    schedule.user?.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const {
+    currentPage,
+    totalPages,
+    goToPage,
+    startIndex,
+    endIndex,
+    hasNextPage,
+    hasPrevPage
+  } = usePagination({
+    totalItems: filteredSchedules?.length || 0,
+    itemsPerPage: ITEMS_PER_PAGE
+  });
+
+  const paginatedSchedules = filteredSchedules?.slice(startIndex, endIndex);
 
   return (
-    <div className="space-y-4">
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <Label>Select Date</Label>
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={setDate}
-            className="rounded-md border"
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={t('schedule.searchSchedules')}
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Select Employee</Label>
-            <Select value={selectedUser} onValueChange={setSelectedUser}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select an employee" />
-              </SelectTrigger>
-              <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id.toString()}>
-                    {user.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Select Shift</Label>
-            <Select value={selectedShift} onValueChange={setSelectedShift}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a shift" />
-              </SelectTrigger>
-              <SelectContent>
-                {shifts.map((shift) => (
-                  <SelectItem key={shift.id} value={shift.id}>
-                    {shift.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button 
-            className="w-full mt-4" 
-            onClick={handleScheduleAssignment}
-            disabled={!date || !selectedUser || !selectedShift}
-          >
-            Assign Schedule
-          </Button>
-        </div>
+        <Button onClick={() => setIsCreateModalOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          {t('schedule.createSchedule')}
+        </Button>
       </div>
-    </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t('common.id-2')}</TableHead>
+            <TableHead>{t('common.name')}</TableHead>
+            <TableHead>{t('common.date')}</TableHead>
+            <TableHead>{t('schedule.shift')}</TableHead>
+            <TableHead>{t('common.type')}</TableHead>
+            <TableHead>{t('common.description')}</TableHead>
+            <TableHead>{t('common.actions')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {paginatedSchedules?.map((schedule) => (
+            <TableRow key={schedule.id}>
+              {/* counter */}
+              <TableCell>{schedule.id}</TableCell>
+              <TableCell>{schedule.user?.name}</TableCell>
+              <TableCell>{format(new Date(schedule.date), 'PPP')}</TableCell>
+              <TableCell>{schedule.shift?.name}</TableCell>
+              <TableCell>{schedule.schedule_type?.name}</TableCell>
+              <TableCell>{schedule.description}</TableCell>
+              <TableCell className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(schedule)}>
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => handleDelete(schedule.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+      />
+
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{t('schedule.editSchedule')}</DialogTitle>
+          </DialogHeader>
+          <ScheduleForm
+            initialData={selectedSchedule || undefined}
+            shifts={scheduleShifts}
+            types={scheduleTypes}
+            users={users}
+            onSubmit={handleEditSubmit}
+            onCancel={() => setIsEditModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{t('schedule.createSchedule')}</DialogTitle>
+          </DialogHeader>
+          <ScheduleForm
+            initialData={undefined}
+            shifts={scheduleShifts}
+            types={scheduleTypes}
+            users={users}
+            onSubmit={handleCreateSubmit}
+            onCancel={() => setIsCreateModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
+
+export default ScheduleList;

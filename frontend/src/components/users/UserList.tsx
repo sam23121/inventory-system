@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { User, UserType } from '../../types/user';
-import { userService, userTypeService } from '../../services/userService';
+import { userService } from '../../services/userService';
 import { Alert, AlertDescription } from '../ui/alert';
 import {
   Table,
@@ -15,50 +15,33 @@ import { Edit, Eye, EyeOff, Trash2, Plus, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { UserForm } from './UserForm';
 import { Input } from '../ui/input';
+import { usePagination } from '../../hooks/usePagination';
+import { Pagination } from '../ui/pagination';
+import { ProfileView } from './ProfileView';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 
-export const UserList: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+interface UserListProps {
+  users: User[];
+  userTypes: UserType[];
+  onUserUpdate: () => void;
+}
+
+export const UserList: React.FC<UserListProps> = ({ users, userTypes, onUserUpdate }) => {
   const [error, setError] = useState<string | null>(null);
   const [visiblePasswords, setVisiblePasswords] = useState<Record<number, boolean>>({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [userTypes, setUserTypes] = useState<UserType[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isProfileViewModalOpen, setIsProfileViewModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await userService.getAll();
-      setUsers(response.data);
-      setError(null);
-    } catch (err) {
-      setError('Failed to fetch users');
-      console.error('Error fetching users:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-    const fetchUserTypes = async () => {
-      try {
-        const response = await userTypeService.getAll();
-        setUserTypes(response.data);
-      } catch (err) {
-        console.error('Error fetching user types:', err);
-      }
-    };
-    fetchUserTypes();
-  }, []);
+  const ITEMS_PER_PAGE = 5;
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         await userService.delete(id);
-        setUsers(users.filter(user => user.id !== id));
+        onUserUpdate();
       } catch (err) {
         setError('Failed to delete user');
       }
@@ -81,7 +64,7 @@ export const UserList: React.FC = () => {
     try {
       if (selectedUser?.id) {
         await userService.update(selectedUser.id, data);
-        await fetchUsers();
+        onUserUpdate();
         setIsEditModalOpen(false);
         setSelectedUser(null);
       }
@@ -89,11 +72,16 @@ export const UserList: React.FC = () => {
       setError('Failed to update user');
     }
   };
+  const handleUserClick = (user: User) => {
+    setSelectedUser(user);
+    // show the profile view modal
+    setIsProfileViewModalOpen(true);
+  };
 
   const handleCreateSubmit = async (data: Partial<User>) => {
     try {
       await userService.create(data as Omit<User, 'id'>);
-      await fetchUsers();
+      onUserUpdate();
       setIsCreateModalOpen(false);
     } catch (err) {
       setError('Failed to create user');
@@ -106,7 +94,23 @@ export const UserList: React.FC = () => {
     user.user_type?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) return <div>Loading...</div>;
+  const {
+    currentPage,
+    totalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    startIndex,
+    endIndex,
+    hasNextPage,
+    hasPrevPage
+  } = usePagination({
+    totalItems: filteredUsers.length,
+    itemsPerPage: ITEMS_PER_PAGE
+  });
+
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
   if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
 
   return (
@@ -127,61 +131,86 @@ export const UserList: React.FC = () => {
         </Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Phone Number</TableHead>
-            <TableHead>Password</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>User Type</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredUsers.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.phone_number}</TableCell>
-              <TableCell className="flex items-center gap-2">
-                <span className="font-mono">
-                  {visiblePasswords[user.id] ? user.password : '••••••••'}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => togglePasswordVisibility(user.id)}
-                >
-                  {visiblePasswords[user.id] ? 
-                    <EyeOff className="w-4 h-4" /> : 
-                    <Eye className="w-4 h-4" />
-                  }
-                </Button>
-              </TableCell>
-              <TableCell>
-                {user.user_type?.roles?.map(role => role.name).join(', ') || 'No roles assigned'}
-              </TableCell>
-              <TableCell>{user.user_type?.name || 'Unknown Type'}</TableCell>
-              <TableCell className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleEdit(user)}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={() => handleDelete(user.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </TableCell>
+      <div className="space-y-4">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>#</TableHead>
+              {/* <TableHead>Profile</TableHead> */}
+              <TableHead>Name</TableHead>
+              <TableHead>Phone Number</TableHead>
+              {/* <TableHead>Password</TableHead> */}
+              <TableHead>Role</TableHead>
+              <TableHead>User Type</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paginatedUsers.map((user) => (
+              <TableRow 
+                key={user.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => setSelectedUser(user)}
+              >
+                {/* <TableCell>{filteredUsers.indexOf(user) + 1}</TableCell> */}
+                <TableCell
+                onClick={() => handleUserClick(user)}
+                >
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={user.profile_picture} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                </TableCell>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.phone_number}</TableCell>
+                {/* <TableCell className="flex items-center gap-2">
+                  <span className="font-mono">
+                    {visiblePasswords[user.id] ? user.password : '••••••••'}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => togglePasswordVisibility(user.id)}
+                  >
+                    {visiblePasswords[user.id] ? 
+                      <EyeOff className="w-4 h-4" /> : 
+                      <Eye className="w-4 h-4" />
+                    }
+                  </Button>
+                </TableCell> */}
+                <TableCell>
+                  {user.user_type?.roles?.map(role => role.name).join(', ') || 'No roles assigned'}
+                </TableCell>
+                <TableCell>{user.user_type?.name || 'Unknown Type'}</TableCell>
+                <TableCell className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleEdit(user)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => handleDelete(user.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={goToPage}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+      />
 
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -208,6 +237,15 @@ export const UserList: React.FC = () => {
             onCancel={() => setIsCreateModalOpen(false)}
           />
         </DialogContent>
+      </Dialog>
+
+      <Dialog open={isProfileViewModalOpen} onOpenChange={setIsProfileViewModalOpen}>
+        <ProfileView
+          user={selectedUser}
+          isOpen={isProfileViewModalOpen}
+          onClose={() => setIsProfileViewModalOpen(false)}
+          userTypes={userTypes}
+        />
       </Dialog>
     </>
   );

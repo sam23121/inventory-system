@@ -19,7 +19,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
   const [formData, setFormData] = useState<Partial<Item>>(
     initialData || {
       name: '',
-      type: '',
+      type_id: 0,
       description: '',
       quantity: 0,
     }
@@ -39,7 +39,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.name) newErrors.name = 'Name is required';
-    if (!formData.type) newErrors.type = 'Type is required';
+    if (!formData.type_id) newErrors.type_id = 'Type is required';
     if ((formData.quantity ?? 0) < 0) newErrors.quantity = 'Quantity must be positive';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -69,8 +69,8 @@ export const ItemForm: React.FC<ItemFormProps> = ({
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">Type</label>
         <select
-          name="type"
-          value={formData.type}
+          name="type_id"
+          value={formData.type_id}
           onChange={handleChange}
           className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
