@@ -167,10 +167,41 @@
   },
 
   "baptism":{
-    "title": "ክርስትና",
-    "baptismTypes": "የክርስትና አይነቶች",
-    "createBaptism": "ክርስትና ፍጠር",
-    "createBaptismType": "ክርስትና አይነት ፍጠር"
+    "title": "በኢትዮጵያ ኦርቶዶክስ ቤተ-ክርስቲያን የማ/ጎንደር ሃገረ-ስብከት የቅዳሜ አድባራት ጊዮርጊስ ቤተ-ክርስቲያን ሰበካ ጉባኤ ጽ/ቤት",
+    "registerBaptism": "የጥምቀት ምዝገባ",
+    "sections": {
+      "registration": "የምዝገባ ዝርዝር",
+      "personal": "የግል መረጃ",
+      "birth": "የልደት እና የአድራሻ መረጃ",
+      "baptism": "የጥምቀት መረጃ",
+      "godparent": "የክርስትና አባት/እናት መረጃ",
+      "witness": "የምስክሮች መረጃ"
+    },
+    "fields": {
+      "serialNumber": "መለያ ቁጥር",
+      "photo": "ፎቶ",
+      "name": "ሙሉ ስም",
+      "christianName": "የክርስትና ስም",
+      "fatherName": "የአባት ስም",
+      "motherName": "የእናት ስም",
+      "dateOfBirth": "የልደት ቀን",
+      "placeOfBirth": "የልደት ቦታ",
+      "phoneNumber": "ስልክ ቁጥር",
+      "address": "አድራሻ",
+      "baptismDate": "የጥምቀት ቀን",
+      "baptismPlace": "የጥምቀት ቦታ",
+      "priestName": "የቄስ ስም",
+      "godparentName": "የክርስትና አባት/እናት ስም",
+      "witness1Name": "የመጀመሪያ ምስክር ስም",
+      "witness1Address": "የመጀመሪያ ምስክር አድራሻ",
+      "witness2Name": "ሁለተኛ ምስክር ስም",
+      "witness2Address": "ሁለተኛ ምስክር አድራሻ"
+    },
+    "language": {
+      "amharic": "አማርኛ",
+      "english": "እንግሊዘኛ"
+    },
+    "submit": "መዝግብ"
   }
-  
+
 }

@@ -170,12 +170,41 @@
     "invalidCredentials": "Invalid credentials"
   },
   
-  "baptism":{
-    "title": "Baptism",
-    "baptismTypes": "Baptism Types",
-    "createBaptism": "Create Baptism",
-    "editBaptism": "Edit Baptism",
-    "createBaptismType": "Create Baptism Type",
-    "editBaptismType": "Edit Baptism Type"
+  "baptism": {
+    "title": "Certificate of Baptism",
+    "registerBaptism": "Register Baptism",
+    "sections": {
+      "registration": "Registration Details",
+      "personal": "Personal Information",
+      "birth": "Birth & Contact Details",
+      "baptism": "Baptism Details",
+      "godparent": "Godparent Information",
+      "witness": "Witness Information"
+    },
+    "fields": {
+      "serialNumber": "Serial Number",
+      "photo": "Photo",
+      "name": "Name",
+      "christianName": "Christian Name",
+      "fatherName": "Father's Name",
+      "motherName": "Mother's Name",
+      "dateOfBirth": "Date of Birth",
+      "placeOfBirth": "Place of Birth",
+      "phoneNumber": "Phone Number",
+      "address": "Address",
+      "baptismDate": "Baptism Date",
+      "baptismPlace": "Baptism Place",
+      "priestName": "Priest Name",
+      "godparentName": "Godparent Name",
+      "witness1Name": "Witness 1 Name",
+      "witness1Address": "Witness 1 Address",
+      "witness2Name": "Witness 2 Name",
+      "witness2Address": "Witness 2 Address"
+    },
+    "language": {
+      "amharic": "Amharic",
+      "english": "English"
+    },
+    "submit": "Register Baptism"
   }
 }

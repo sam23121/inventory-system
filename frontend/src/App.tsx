@@ -13,6 +13,7 @@ import Users from './pages/Users';
 import Schedule from './pages/Schedule';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import Baptism from './pages/Baptism'; 
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App: React.FC = () => {
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/users" element={<Users />} />
               <Route path="/schedule" element={<Schedule />} />
+              <Route path="/baptisms" element={<Baptism />} />
             </Route>
           </Route>
         </Routes>
