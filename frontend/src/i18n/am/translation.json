@@ -63,6 +63,19 @@
     "10": "፲"
   },
 
+  "table": {
+    "name": "ስም",
+    "description": "መግለጫ",
+    "quantity": "ብዛት",
+    "price": "ዋጋ",
+    "total": "ጠቅላላ",
+    "date": "ቀን",
+    "type": "አይነት",
+    "status": "ሁኔታ",
+    "actions": "ተግባራት",
+    "noData": "ምንም መረጃ የለም"
+  },
+
   "main": {
     "title": "የቤተ-ክርስትያን ማስተዳደሪያ",
     "welcome": "እንኳን ደህና መጡ",
@@ -151,5 +164,13 @@
     "phoneNumber": "ስልክ ቁጥር",
     "password": "የይለፍ ቃል",
     "invalidCredentials": "የተሳሳተ መረጃ"
+  },
+
+  "baptism":{
+    "title": "ክርስትና",
+    "baptismTypes": "የክርስትና አይነቶች",
+    "createBaptism": "ክርስትና ፍጠር",
+    "createBaptismType": "ክርስትና አይነት ፍጠር"
   }
+  
 }
