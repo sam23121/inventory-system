@@ -23,6 +23,7 @@ export interface User {
   profile_picture?: string;
 }
 
+
 export interface AuthState {
   user: User | null;
   token: string | null;

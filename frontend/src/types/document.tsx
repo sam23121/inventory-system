@@ -18,7 +18,6 @@ export interface DocumentType {
   }
 
   export interface ReligiousDocument {
-    id: number;
     serial_number: string;
     english_name: string;
     english_father_name?: string;
@@ -30,7 +29,7 @@ export interface DocumentType {
     amharic_mother_name?: string;
     amharic_christian_name?: string;
 
-    date_of_birth: string;
+    date_of_birth: Date;
     place_of_birth: string;
     address?: string;
     phone_number?: string;
@@ -50,22 +49,20 @@ export interface DocumentType {
     recorded_by_id?: number;
     approved_by?: User;
     approved_by_id?: number;
-    created_at: string;
-    updated_at: string;
   }
 
   export interface BaptismDocument extends ReligiousDocument {
-    baptism_date?: string;
+    baptism_date?: Date;
     baptism_place?: string;
     amharic_god_parent_name?: string;
     english_god_parent_name?: string;
   }
 
   export interface BurialDocument extends ReligiousDocument {
-    date_of_death?: string;
+    date_of_death?: Date;
     place_of_death?: string;
     cause_of_death?: string;
-    burial_date?: string;
+    burial_date?: Date;
   }
 
   export interface MarriageDocument extends ReligiousDocument {
@@ -79,7 +76,17 @@ export interface DocumentType {
     amharic_bride_mother_name?: string;
     amharic_bride_christian_name?: string;
 
-    date_of_marriage?: string;
+    english_groom_name?: string;
+    english_groom_father_name?: string;
+    english_groom_mother_name?: string;
+    english_groom_christian_name?: string;
+    
+    amharic_groom_name?: string;
+    amharic_groom_father_name?: string;
+    amharic_groom_mother_name?: string;
+    amharic_groom_christian_name?: string;
+
+    date_of_marriage?: Date;
     place_of_marriage?: string;
   }
 
