@@ -33,7 +33,7 @@ export const baptismDocumentService = {
 export const burialDocumentService = {
   getAll: () => api.get<BurialDocument[]>('/documents/burial/'),
   getById: (id: number) => api.get<BurialDocument>(`/documents/burial/${id}`),
-  create: (data: Omit<Document, 'id'>) => api.post<BurialDocument>('/documents/burial/', data),
+  create: (data: Omit<BurialDocument, 'id'>) => api.post<BurialDocument>('/documents/burial/', data),
   update: (id: number, data: Partial<BurialDocument>) => api.put<BurialDocument>(`/documents/burial/${id}`, data),
   delete: (id: number) => api.delete(`/documents/burial/${id}`),
 };

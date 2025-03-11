@@ -205,6 +205,7 @@ def update_membership_document(document_id: int, document: schemas.MembershipDoc
 def create_membership_document(document: schemas.MembershipDocumentCreate, db: Session = Depends(get_db)):
     db_document = models.MembershipDocument(**document.dict())
     # generate serial number
+    # print(db_document)
     if not db_document.serial_number:
         db_document.serial_number = generate_document_serial(db, prefix="አባ")
     db.add(db_document)

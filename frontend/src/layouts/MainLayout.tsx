@@ -17,6 +17,7 @@ import {
   NotebookPen,
   Skull,
   Baby,
+  HeartHandshake,
 } from 'lucide-react';
 import { Button } from "../components/ui/button";
 import {
@@ -54,6 +55,7 @@ const navigation = [
       { name: 'member', href: '/members', icon: Users },
       { name: 'baptism', href: '/baptisms', icon: Baby },
       { name: 'burial', href: '/burials', icon: Skull },
+      { name: 'marriage', href: '/marriages', icon: HeartHandshake },
     ]
   },
   {

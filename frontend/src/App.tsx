@@ -12,6 +12,10 @@ import Transactions from './pages/Transactions';
 import Users from './pages/Users';
 import Schedule from './pages/Schedule';
 import LoginPage from './pages/LoginPage';
+import Members from './pages/Members';
+import Baptism from './pages/Baptism';
+import Burial from './pages/Burials';
+import Marriage from './pages/Marriages';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const queryClient = new QueryClient();
@@ -30,6 +34,10 @@ const App: React.FC = () => {
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/users" element={<Users />} />
               <Route path="/schedule" element={<Schedule />} />
+              <Route path="/members" element={<Members />} />
+              <Route path="/baptisms" element={<Baptism />} />
+              <Route path="/burials" element={<Burial />} />
+              <Route path="/marriages" element={<Marriage />} />
             </Route>
           </Route>
         </Routes>

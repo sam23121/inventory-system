@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Text, Table, Time, JSON
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, Text, Table, Time, JSON, Date
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from enum import Enum as PyEnum
@@ -217,7 +217,7 @@ class ReligiousDocumentBase(Base):
     amharic_father_name = Column(String, index=True)
     amharic_mother_name = Column(String, index=True)
 
-    date_of_birth = Column(DateTime, nullable=False)
+    date_of_birth = Column(DateTime, nullable=False) #for future this should be date
     place_of_birth = Column(String, nullable=False)
     address = Column(String)
     phone_number = Column(String)

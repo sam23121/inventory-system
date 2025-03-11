@@ -52,6 +52,11 @@
     
   },
 
+  "messages":{
+    "success_item_created": "Item created successfully!",
+    "error_item_created": "Failed to create item. Please try again."
+  },
+
   "numbers": {
     "1": "1",
     "2": "2",
@@ -169,6 +174,39 @@
     "password": "Password",
     "invalidCredentials": "Invalid credentials"
   },
+  "members":{
+    "serial_number": "Serial Number",
+    "english_name": "English Name",
+    "english_father_name": "English Father Name",
+    "english_mother_name": "English Mother Name",
+    "english_christian_name": "English Christian Name",
+    "amharic_name": "Amharic Name",
+    "amharic_father_name": "Amharic Father Name",
+    "amharic_mother_name": "Amharic Mother Name",
+    "amharic_christian_name": "Amharic Christian Name",
+    "date_of_birth": "Date of Birth",
+    "place_of_birth": "Place of Birth",
+    "address": "Address",
+    "phone_number": "Phone Number",
+    "priest_name": "Priest Name",
+    "priest_id": "Priest ID",
+    "amharic_witness_name_1": "Amharic Witness Name 1",
+    "amharic_witness_name_2": "Amharic Witness Name 2",
+    "english_witness_name_1": "English Witness Name 1",
+    "english_witness_name_2": "English Witness Name 2",
+    "address_witness_1": "Address Witness 1",
+    "address_witness_2": "Address Witness 2",
+    "recorded_by_id": "Recorded By ID",
+    "approved_by_id": "Approved By ID"
+  },
+
+  "pages":{
+    "members_form": "Member Registration Form",
+    "baptism_form": "Baptism Form",
+    "burials_form": "Burials Form",
+    "marriage_form": "Marriage Form"
+
+  },
   
   "baptism":{
     "title": "Baptism",
@@ -177,5 +215,43 @@
     "editBaptism": "Edit Baptism",
     "createBaptismType": "Create Baptism Type",
     "editBaptismType": "Edit Baptism Type"
+  },
+  "baptism":{
+    "baptism_date": "Baptism Date",
+    "baptism_place": "Baptism Place",
+    "amharic_god_parent_name": "Amharic God Parent Name",
+    "english_god_parent_name": "English God Parent Name"
+  },
+
+  "burials":{
+    "date_of_death": "Date of Death",
+    "place_of_death": "Place of Death",
+    "cause_of_death": "Cause of Death",
+    "burial_date": "Burial Date"
+  },
+
+  "marriages":{
+    "english_bride_name": "English Bride Name",
+    "english_bride_father_name": "English Bride Father Name",
+    "english_bride_mother_name": "English Bride Mother Name",
+    "english_bride_christian_name": "English Bride Christian Name",
+    "amharic_bride_name": "Amharic Bride Name",
+    "amharic_bride_father_name": "Amharic Bride Father Name",
+    "amharic_bride_mother_name": "Amharic Bride Mother Name",
+    "amharic_bride_christian_name": "Amharic Bride Christian Name",
+
+    "english_groom_name": "English Groom Name",
+    "english_groom_father_name": "English Groom Father Name",
+    "english_groom_mother_name": "English Groom Mother Name",
+    "english_groom_christian_name": "English Groom Christian Name",
+    
+    "amharic_groom_name": "Amharic Groom Name",
+    "amharic_groom_father_name": "Amharic Groom Father Name",
+    "amharic_groom_mother_name": "Amharic Groom Mother Name",
+    "amharic_groom_christian_name": "Amharic Groom Christian Name",
+
+    "date_of_marriage": "Date of Marriage",
+    "place_of_marriage": "Place of Marriage"
   }
+  
 }

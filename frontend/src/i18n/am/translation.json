@@ -14,7 +14,7 @@
     "edit": "ማስተካከል",
     "delete": "ሰርዝ",
     "save": "አስቀምጥ",
-    "cancel": "ተቀብለኝ",
+    "cancel": "አቋርጥ",
     "create": "ፍጠር",
     "view": "ተመልከት",
     "update": "አስተካክል",
@@ -48,6 +48,11 @@
     "of": "ከ",
     "previous": "ወደኋላ",
     "next": "ወደፊት"
+  },
+
+  "messages":{
+    "success_item_created": "በትክክል ፍይሉ አስገብቷል",
+    "error_item_created": "በትክክል ፍይሉ አላስገቡትም"
   },
 
   "numbers": {
@@ -166,11 +171,78 @@
     "invalidCredentials": "የተሳሳተ መረጃ"
   },
 
+  "members":{
+    "serial_number": "መለያ-ቁጥር",
+    "english_name": "ስም በእንግሊዘኛ",
+    "english_father_name": "የአባት ስም በእንግሊዘኛ",
+    "english_mother_name": "የእናት ስም በእንግሊዘኛ",
+    "english_christian_name": "የክርስትና ስም በእንግሊዘኛ",
+    "amharic_name": "ስም በአማርኛ",
+    "amharic_father_name": "የአባት ስም በአማርኛ",
+    "amharic_mother_name": "የእናት ስም በአማርኛ",
+    "amharic_christian_name": "የክርስትና ስም በአማርኛ",
+    "date_of_birth": "የትውልድ ቀን",
+    "place_of_birth": "የትውልድ ቦታ",
+    "address": "መኖሪያ",
+    "phone_number": "ስልክ ቁጥር",
+    "priest_name": "የክርስትና ንስሃ ስም",
+    "priest_id": "የክርስትና ንስሃ መለያ-ቁጥር",
+    "amharic_witness_name_1": "የምስክር ስም 1 በአማርኛ",
+    "amharic_witness_name_2": "የምስክር ስም 2 በአማርኛ",
+    "english_witness_name_1": "የምስክር ስም 1 በእንግሊዘኛ",
+    "english_witness_name_2": "የምስክር ስም 2 በእንግሊዘኛ",
+    "address_witness_1": "መኖሪያ ምስክር 1",
+    "address_witness_2": "መኖሪያ ምስክር 2",
+    "recorded_by_id": "የመዝጋቢ መለያ-ቁጥር",
+    "approved_by_id": "የፈቃጅ መለያ-ቁጥር"
+  },
+
+
+  "pages":{
+    "members_form": "አባላት መሞያ ቅጽ",
+    "baptism_form": "ክርስትና መሞያ ቅጽ",
+    "burials_form": "ቀብር መሞያ ቅጽ",
+    "marriage_form": "ጋብቻ መሞያ ቅጽ"
+  },
+
   "baptism":{
-    "title": "ክርስትና",
-    "baptismTypes": "የክርስትና አይነቶች",
-    "createBaptism": "ክርስትና ፍጠር",
-    "createBaptismType": "ክርስትና አይነት ፍጠር"
+    "baptism_date": "የጠጠመቀበት ቀን",
+    "baptism_place": "የጠጠመቀበት ቦታ",
+    "amharic_god_parent_name": "የክርስትና የወላጅ በአማርኛ",
+    "english_god_parent_name": "የክርስትና የወላጅ በእንግሊዘኛ"
+  },
+
+  "burials":{
+    "date_of_death": "የሞተበት ቀን",
+    "place_of_death": "የቀብር ቦታ",
+    "cause_of_death": "የሞት ምክኒያት",
+    "burial_date": "የቀብር ቀን"
+  },
+
+  "marriage":{
+    "english_bride_name": "የሙሽሪት ስም በእንግሊዘኛ",
+    "english_bride_father_name": "የሙሽሪት አባት ስም በእንግሊዘኛ",
+    "english_bride_mother_name": "የሙሽሪት እናት ስም በእንግሊዘኛ",
+    "english_bride_christian_name": "የሙሽሪት ክርስትና ስም በእንግሊዘኛ",
+    "amharic_bride_name": "የሙሽሪት ስም በአማርኛ",
+    "amharic_bride_father_name": "የሙሽሪት አባት ስም በአማርኛ",
+    "amharic_bride_mother_name": "የሙሽሪት እናት ስም በአማርኛ",
+    "amharic_bride_christian_name": "የሙሽሪት ክርስትና ስም በአማርኛ",
+
+    "english_groom_name": "የሙሽራ ስም በእንግሊዘኛ",
+    "english_groom_father_name": "የሙሽራ አባት ስም በእንግሊዘኛ",
+    "english_groom_mother_name": "የሙሽራ እናት ስም በእንግሊዘኛ",
+    "english_groom_christian_name": "የሙሽራ ክርስትና ስም በእንግሊዘኛ",
+    
+    "amharic_groom_name": "የሙሽራ ስም በአማርኛ",
+    "amharic_groom_father_name": "የሙሽራ አባት ስም በአማርኛ",
+    "amharic_groom_mother_name": "የሙሽራ እናት ስም በአማርኛ",
+    "amharic_groom_christian_name": "የሙሽራ ክርስትና ስም በአማርኛ",
+
+    "date_of_marriage": "የጋብቻ ቀን",
+    "place_of_marriage": "የጋብቻ ቦታ"
   }
+  
+    
   
 }
