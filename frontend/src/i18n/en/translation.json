@@ -208,14 +208,7 @@
 
   },
   
-  "baptism":{
-    "title": "Baptism",
-    "baptismTypes": "Baptism Types",
-    "createBaptism": "Create Baptism",
-    "editBaptism": "Edit Baptism",
-    "createBaptismType": "Create Baptism Type",
-    "editBaptismType": "Edit Baptism Type"
-  },
+
   "baptism":{
     "baptism_date": "Baptism Date",
     "baptism_place": "Baptism Place",
