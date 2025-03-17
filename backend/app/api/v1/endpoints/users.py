@@ -42,8 +42,17 @@ def create_user(user: schemas.UserCreate, db_user: Tuple[Session, models.User] =
         return db_user
 
 @router.get("/", response_model=List[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = db.query(models.User).offset(skip).limit(limit).all()
+def read_users(skip: int = 0, limit: int = 100, type: str = None, db: Session = Depends(get_db)):
+    query = db.query(models.User)
+    
+    if type:
+        # Get the type_id from the type name
+        user_type = db.query(models.UserType).filter(models.UserType.name == type).first()
+        if not user_type:
+            raise HTTPException(status_code=404, detail=f"User type '{type}' not found")
+        query = query.filter(models.User.type_id == user_type.id)
+    
+    users = query.offset(skip).limit(limit).all()
     return users
 
 @router.get("/{user_id}", response_model=schemas.User)
