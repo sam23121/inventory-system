@@ -47,7 +47,12 @@
     "page": "ገጽ",
     "of": "ከ",
     "previous": "ወደኋላ",
-    "next": "ወደፊት"
+    "next": "ወደፊት",
+
+    "language": {
+      "english": "እንግሊዝኛ",
+      "amharic": "አማርኛ"
+    }
   },
 
   "messages":{

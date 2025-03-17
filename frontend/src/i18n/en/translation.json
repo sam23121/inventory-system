@@ -48,7 +48,12 @@
     "page": "Page",
     "of": "of",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+
+    "language": {
+      "english": "English",
+      "amharic": "Amharic"
+    }
     
   },
 

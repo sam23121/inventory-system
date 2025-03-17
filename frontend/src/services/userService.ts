@@ -2,11 +2,34 @@ import { User, UserType, Role } from '../types/user';
 import { api } from './api';
 
 export const userService = {
-  getAll: () => api.get<User[]>('/users/'),
+
+  getAll: () => api.get<User[]>('/users'),
+  
   getById: (id: number) => api.get<User>(`/users/${id}`),
+
+  getByRole: async (role: string): Promise<User[]> => {
+    const response = await api.get<User[]>('/users', {
+      params: { role }
+    });
+    return response.data;
+  },
+
+  getByType: async (type: string): Promise<User[]> => {
+    const response = await api.get<User[]>('/users', {
+      params: { type }
+    });
+    return response.data;
+  },
+  
   create: (data: Omit<User, 'id'>) => api.post<User>('/users', data),
+  
   update: (id: number, data: Partial<User>) => api.put<User>(`/users/${id}`, data),
+  
   delete: (id: number) => api.delete(`/users/${id}`),
+  
+  changePassword: (id: number, oldPassword: string, newPassword: string) => 
+    api.post<{ success: boolean }>(`/users/${id}/change-password`, { oldPassword, newPassword }),
+  
   getTypes: () => api.get<UserType[]>('/users/types'),
   getRoles: () => api.get<Role[]>('/roles'),
   assignRole: (userId: number, roleId: number) => api.post(`/users/${userId}/roles/${roleId}`),

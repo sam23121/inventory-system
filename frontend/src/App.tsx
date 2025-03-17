@@ -13,7 +13,7 @@ import Users from './pages/Users';
 import Schedule from './pages/Schedule';
 import LoginPage from './pages/LoginPage';
 import Members from './pages/Members';
-import Baptism from './pages/Baptism';
+import Baptism from './pages/register/Baptism';
 import Burial from './pages/Burials';
 import Marriage from './pages/Marriages';
 import ProtectedRoute from './components/ProtectedRoute';
